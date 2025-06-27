@@ -157,8 +157,8 @@
         }
 
         .bookmark-add {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border: 2px dashed #888;
             border-radius: 12px;
             display: flex;
@@ -248,7 +248,7 @@
         updateGreeting();
 
         /* ---------- Local Wallpaper Picker (folder "wallpaper") ---------- */
-        const localWallpapers = Array.from({ length: 10 }, (_, i) => `wallpaper/bg${i + 1}.jpg`);
+        const localWallpapers = Array.from({ length: 10 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
 
         function pickLocalWallpaper() {
             const img = localWallpapers[Math.floor(Math.random() * localWallpapers.length)];
