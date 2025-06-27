@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tokyo's Homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: #1e1e1e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s ease-in-out;
+            position: relative;
+            z-index: 0;
+        }
+
+        /* semi–transparent overlay to darken wallpaper */
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.50);
+            /* adjust opacity as desired */
+            pointer-events: none;
+            /* let clicks through */
+            z-index: 0;
+            /* below page content */
+        }
+
+        /* ensure overlay is below content */
+        body>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 600;
+            /* semi‑bold */
+        }
+
+        .quote {
+            font-style: italic;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            font-weight: 600;
+            /* semi‑bold */
+        }
+
+        .clock {
+            font-size: 9rem;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+
+
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            margin-top: 300px;
+            /* push it down from the clock */
+        }
+
+        .search-bar button {
+            background: #ffffff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .engine-select {
+            position: absolute;
+            right: 0;
+            flex-direction: column;
+            align-items: center;
+            background-color: #333;
+            padding: 5px;
+            border-radius: 6px;
+            display: none;
+            z-index: 10;
+        }
+
+        .engine-select.show {
+            display: flex;
+        }
+
+        .engine-wrapper {
+            position: relative;
+            margin-left: 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .engine-icon {
+            height: 35px;
+            width: 35px;
+            margin: 5px 0;
+            opacity: 0.6;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: opacity 0.3s;
+        }
+
+        .engine-icon.active,
+        .engine-icon:hover {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            font-size: 1rem;
+            width: 400px;
+            /* fixed length */
+        }
+
+        .bookmarks {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            /* push bookmarks further down */
+            gap: 15px;
+        }
+
+        .bookmark {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: #ffffff;
+            text-decoration: none;
+            width: 70px;
+            font-size: 0.8rem;
+        }
+
+        .bookmark-add {
+            width: 60px;
+            height: 60px;
+            border: 2px dashed #888;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .bookmark-add:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .bookmark img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+        }
+
+        .bookmark-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .bookmark-name {
+            display: block;
+            margin-top: 2px;
+            word-break: break-word;
+            font-weight: 500;
+            /* semi‑bold */
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="greeting">Loading greeting...</h1>
+    <div class="quote" id="quote">"Loading quote..."</div>
+    <div class="clock" id="clock">Loading time...</div>
+
+
+    <div class="search-bar">
+        <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
+            <input type="text" name="q" id="searchInput" placeholder="Search…" />
+        </form>
+        <div class="engine-wrapper">
+            <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
+            <div class="engine-select" id="engineSelect">
+                <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
+                <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
+                <img src="https://search.brave.com/favicon.ico" data-action="brave" class="engine-icon">
+            </div>
+        </div>
+    </div>
+
+    <div class="bookmarks" id="bookmarks"></div>
+
+    <script>
+        function updateGreeting() {
+            const hour = new Date().getHours();
+            let greeting = "Hello";
+            let emoji = "🌞";
+
+            if (hour >= 5 && hour < 12) {
+                greeting = "Good Morning";
+                emoji = "🌅";
+            } else if (hour >= 12 && hour < 18) {
+                greeting = "Good Afternoon";
+                emoji = "🌞";
+            } else if (hour >= 18 && hour < 22) {
+                greeting = "Good Evening";
+                emoji = "🌇";
+            } else {
+                greeting = "Good Night";
+                emoji = "🌙";
+            }
+
+            document.getElementById("greeting").textContent = `${greeting}, Tokyo ${emoji}`;
+        }
+        updateGreeting();
+
+        /* ---------- Local Wallpaper Picker (folder "wallpaper") ---------- */
+        const localWallpapers = Array.from({ length: 10 }, (_, i) => `wallpaper/bg${i + 1}.jpg`);
+
+        function pickLocalWallpaper() {
+            const img = localWallpapers[Math.floor(Math.random() * localWallpapers.length)];
+            document.body.style.backgroundImage = `url('${img}')`;
+        }
+        pickLocalWallpaper();
+
+        // Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours() % 12 || 12;
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+            document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Quote of the Day
+        const quotes = [
+            "Keep going. Everything you need will come to you.",
+            "Discipline is choosing between what you want now and what you want most.",
+            "The grind never lies.",
+            "Focus beats talent when talent doesn’t focus.",
+            "Success is the sum of small efforts repeated day in and day out.",
+            "Push yourself, because no one else is going to do it for you.",
+            "The only limit to your impact is your imagination and commitment.",
+            "You don't have to be great to start, but you have to start to be great.",
+            "Hard work beats talent when talent doesn't work hard.",
+            "Dream big. Start small. Act now.",
+            "Every champion was once a contender who refused to give up.",
+            "Don't watch the clock; do what it does. Keep going.",
+            "You are your only limit.",
+            "Wake up with determination. Go to bed with satisfaction.",
+            "Small steps every day lead to big results.",
+            "Be stronger than your excuses.",
+            "Start where you are. Use what you have. Do what you can.",
+            "If it doesn't challenge you, it won't change you.",
+            "You miss 100% of the shots you don't take.",
+            "Be so good they can't ignore you.",
+            "Work until your idols become your rivals.",
+            "Don’t limit your challenges. Challenge your limits.",
+            "Nothing worth having comes easy.",
+            "Stay hungry. Stay foolish.",
+            "Winners focus on winning. Losers focus on winners.",
+            "Grind in silence. Let success make the noise.",
+            "Consistency is more important than perfection.",
+            "Stop doubting yourself. Work hard and make it happen.",
+            "The pain you feel today will be the strength you feel tomorrow.",
+            "Action is the foundational key to all success."
+        ];
+        document.getElementById('quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+
+        // 🔍 Search Engine Switcher
+        const engines = {
+            google: { action: 'https://www.google.com/search', icon: 'https://www.google.com/favicon.ico' },
+            duckduckgo: { action: 'https://duckduckgo.com/', icon: 'https://duckduckgo.com/favicon.ico' },
+            brave: { action: 'https://search.brave.com/search', icon: 'https://brave.com/static-assets/images/brave-favicon.png' }
+        };
+
+        const currentIcon = document.getElementById('currentEngineIcon');
+        const engineSelect = document.getElementById('engineSelect');
+        const form = document.getElementById('searchForm');
+
+        currentIcon.addEventListener('click', () => {
+            engineSelect.classList.toggle('show');
+        });
+
+        engineSelect.querySelectorAll('.engine-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const eng = engines[icon.dataset.action];
+                form.action = eng.action;
+                currentIcon.src = eng.icon;
+                engineSelect.classList.remove('show');
+
+                const searchInput = document.getElementById('searchInput');
+                if (icon.dataset.action === 'duckduckgo') {
+                    searchInput.placeholder = "Search Anonymously";
+                } else {
+                    searchInput.placeholder = `Search with ${icon.dataset.action.charAt(0).toUpperCase() + icon.dataset.action.slice(1)}`;
+                }
+            });
+        });
+
+        document.getElementById('searchInput').placeholder = "Search with Google";
+
+        function addBookmarkPrompt() {
+            const url = prompt("Enter site URL (include https://)", "");
+            if (!url) return;
+            const name = prompt("Enter site name (optional):", "") || new URL(url).hostname.replace("www.", "");
+            const saved = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
+            saved.push({ url, name, icon: `${new URL(url).origin}/favicon.ico` });
+            localStorage.setItem('customBookmarks', JSON.stringify(saved));
+            renderBookmarks();
+        }
+
+        // Bookmarks (editable)
+        const defaultBookmarks = [
+            { name: "YouTube Music", url: "https://music.youtube.com/", icon: "https://music.youtube.com/favicon.ico" },
+            { name: "Reddit", url: "https://www.reddit.com", icon: "https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png" },
+            { name: "GitHub", url: "https://github.com", icon: "https://github.githubassets.com/favicons/favicon.png" },
+            { name: "Twitter", url: "https://twitter.com", icon: "https://abs.twimg.com/favicons/twitter.ico" }
+        ];
+
+        async function fetchTitle(url) {
+            try {
+                const response = await fetch(url, { method: 'GET', mode: 'cors' });
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const title = doc.querySelector('title');
+                return title ? title.innerText.trim() : null;
+            } catch {
+                return null;
+            }
+        }
+
+        async function renderBookmarks() {
+            const container = document.getElementById('bookmarks');
+            container.innerHTML = "";
+            const saved = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
+            const bookmarks = saved.length > 0 ? saved : defaultBookmarks;
+
+            for (let i = 0; i < bookmarks.length; i++) {
+                const b = bookmarks[i];
+                const url = new URL(b.url);
+                let name = b.name;
+                if (!name) {
+                    name = await fetchTitle(b.url);
+                    name = name || url.hostname.replace("www.", "");
+                    bookmarks[i].name = name;
+                    localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
+                }
+                const icon = b.icon || `${url.origin}/favicon.ico`;
+
+                const a = document.createElement('a');
+                a.href = b.url;
+                a.target = "_self";
+                a.className = "bookmark";
+                a.innerHTML = `<img src="${icon}" alt="${name}" class="bookmark-icon"><span class="bookmark-name">${name}</span>`;
+
+                a.addEventListener('click', (e) => {
+                    // Left click opens the link
+                    window.location.href = b.url;
+                });
+
+                a.addEventListener('contextmenu', async (e) => {
+                    e.preventDefault();
+                    const newUrl = prompt(`Edit URL for ${name}:`, b.url);
+                    const newName = prompt(`Edit Name for ${name}:`, name);
+                    if (newUrl && newName !== null) {
+                        const updatedUrl = new URL(newUrl.startsWith("http") ? newUrl : "https://" + newUrl);
+                        bookmarks[i] = {
+                            url: updatedUrl.href,
+                            name: newName,
+                            icon: `${updatedUrl.origin}/favicon.ico`
+                        };
+                        localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
+                        renderBookmarks();
+                    }
+                });
+
+                container.appendChild(a);
+            }
+            // --- "add bookmark" tile ---
+            const addTile = document.createElement('div');
+            addTile.className = 'bookmark-add';
+            addTile.textContent = '+';
+            addTile.title = "Add bookmark";
+            addTile.addEventListener('click', () => addBookmarkPrompt());
+            container.appendChild(addTile);
+        }
+        renderBookmarks();
+    </script>
+</body>
+
+</html>
