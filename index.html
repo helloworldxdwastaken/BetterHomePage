@@ -198,6 +198,59 @@
             font-weight: 500;
             /* semi‑bold */
         }
+
+        /* Responsive styles for mobile */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px;
+            }
+
+            .clock {
+                font-size: 5rem;
+            }
+
+            input {
+                width: 90%;
+                font-size: 1rem;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+                margin-top: 100px;
+            }
+
+            .search-bar button {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .engine-wrapper {
+                margin-left: 0;
+                margin-top: 10px;
+                justify-content: center;
+            }
+
+            .bookmarks {
+                gap: 10px;
+            }
+
+            .bookmark,
+            .bookmark-add {
+                width: 60px;
+                height: auto;
+            }
+
+            .bookmark-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .bookmark-name {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 
@@ -249,7 +302,7 @@
 
         /* ---------- Local Wallpaper Picker (folder "wallpaper") ---------- */
         const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
-        
+
         function pickLocalWallpaper() {
             let idx = Number(localStorage.getItem('wallpaperIndex') || 0);
             document.body.style.backgroundImage = `url('${localWallpapers[idx]}')`;
