@@ -248,11 +248,12 @@
         updateGreeting();
 
         /* ---------- Local Wallpaper Picker (folder "wallpaper") ---------- */
-        const localWallpapers = Array.from({ length: 10 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
-
+        const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+        
         function pickLocalWallpaper() {
-            const img = localWallpapers[Math.floor(Math.random() * localWallpapers.length)];
-            document.body.style.backgroundImage = `url('${img}')`;
+            let idx = Number(localStorage.getItem('wallpaperIndex') || 0);
+            document.body.style.backgroundImage = `url('${localWallpapers[idx]}')`;
+            localStorage.setItem('wallpaperIndex', (idx + 1) % localWallpapers.length);
         }
         pickLocalWallpaper();
 
