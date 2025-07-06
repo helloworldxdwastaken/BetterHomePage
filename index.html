@@ -12,11 +12,16 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --fg-color: #ffffff;
+        }
+
         body {
             margin: 0;
             font-family: 'Montserrat', sans-serif;
-            background: #1e1e1e;
-            color: #fff;
+            background: var(--bg-color);
+            color: var(--fg-color);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -75,7 +80,7 @@
             display: flex;
             align-items: center;
             margin-bottom: 30px;
-            margin-top: 300px;
+            margin-top: 20vh;
             /* push it down from the clock */
         }
 
@@ -142,12 +147,13 @@
         }
 
         .bookmarks {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(6, 70px);
             justify-content: center;
-            flex-wrap: wrap;
+            gap: 10px;
             margin-top: 10px;
-            /* push bookmarks further down */
-            gap: 15px;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .bookmark {
@@ -256,6 +262,17 @@
                 font-size: 0.75rem;
             }
         }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-color: #fafafa;
+                --fg-color: #111111;
+            }
+
+            body::before {
+                background: rgba(255, 255, 255, 0.35);
+            }
+        }
     </style>
 </head>
 
@@ -274,7 +291,8 @@
             <div class="engine-select" id="engineSelect">
                 <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
                 <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
-                <img src="https://search.brave.com/favicon.ico" data-action="brave" class="engine-icon">
+                <img src="https://brave.com/static-assets/images/brave-favicon.png" data-action="brave"
+                    class="engine-icon">
             </div>
         </div>
     </div>
@@ -395,22 +413,39 @@
         document.getElementById('searchInput').placeholder = "Search with Google";
 
         function addBookmarkPrompt() {
-            const url = prompt("Enter site URL (include https://)", "");
-            if (!url) return;
-            const name = prompt("Enter site name (optional):", "") || new URL(url).hostname.replace("www.", "");
-            const saved = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
-            saved.push({ url, name, icon: `${new URL(url).origin}/favicon.ico` });
-            localStorage.setItem('customBookmarks', JSON.stringify(saved));
+            // Ask for a short URL, prepend protocol if missing
+            const input = prompt("Enter site URL (e.g. facebook.com)", "");
+            if (!input) return;
+            const url = input.startsWith("http://") || input.startsWith("https://")
+                ? input
+                : `https://${input}`;
+
+            // Prompt for a display name or derive from hostname
+            const name = prompt("Enter site name (optional):", "") ||
+                new URL(url).hostname.replace("www.", "");
+
+            // Save bookmark and re-render
+            bookmarks.push({
+                url,
+                name,
+                icon: `${new URL(url).origin}/favicon.ico`
+            });
+            localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
             renderBookmarks();
         }
 
         // Bookmarks (editable)
-        const defaultBookmarks = [
-            { name: "YouTube Music", url: "https://music.youtube.com/", icon: "https://music.youtube.com/favicon.ico" },
-            { name: "Reddit", url: "https://www.reddit.com", icon: "https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png" },
-            { name: "GitHub", url: "https://github.com", icon: "https://github.githubassets.com/favicons/favicon.png" },
-            { name: "Twitter", url: "https://twitter.com", icon: "https://abs.twimg.com/favicons/twitter.ico" }
-        ];
+        // Load or seed bookmarks
+        let bookmarks = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
+        if (bookmarks.length === 0) {
+            bookmarks = [
+                { name: "YouTube Music", url: "https://music.youtube.com/", icon: "https://music.youtube.com/favicon.ico" },
+                { name: "Reddit", url: "https://www.reddit.com", icon: "https://www.redditstatic.com/desktop2x/img/favicon/favicon-32x32.png" },
+                { name: "GitHub", url: "https://github.com", icon: "https://github.githubassets.com/favicons/favicon.png" },
+                { name: "Twitter", url: "https://twitter.com", icon: "https://abs.twimg.com/favicons/twitter.ico" }
+            ];
+            localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
+        }
 
         async function fetchTitle(url) {
             try {
@@ -426,10 +461,10 @@
         }
 
         async function renderBookmarks() {
+            // Load current bookmarks list
+            bookmarks = JSON.parse(localStorage.getItem('customBookmarks'));
             const container = document.getElementById('bookmarks');
             container.innerHTML = "";
-            const saved = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
-            const bookmarks = saved.length > 0 ? saved : defaultBookmarks;
 
             for (let i = 0; i < bookmarks.length; i++) {
                 const b = bookmarks[i];
@@ -470,6 +505,26 @@
                     }
                 });
 
+                // --- Drag and Drop for custom bookmarks ---
+                a.setAttribute('draggable', 'true');
+                a.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', i.toString());
+                });
+                a.addEventListener('dragover', e => {
+                    e.preventDefault();
+                });
+                a.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    const toIndex = i;
+                    // Only reorder bookmarks if both are user-editable (all bookmarks are now editable)
+                    const [moved] = bookmarks.splice(fromIndex, 1);
+                    bookmarks.splice(toIndex, 0, moved);
+                    localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
+                    renderBookmarks();
+                });
+                // ---
+
                 container.appendChild(a);
             }
             // --- "add bookmark" tile ---
@@ -477,6 +532,7 @@
             addTile.className = 'bookmark-add';
             addTile.textContent = '+';
             addTile.title = "Add bookmark";
+            addTile.setAttribute('draggable', 'false');
             addTile.addEventListener('click', () => addBookmarkPrompt());
             container.appendChild(addTile);
         }
