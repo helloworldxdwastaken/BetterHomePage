@@ -737,52 +737,78 @@
             return '☁️';
         }
 
-        // Fetch location via IP and then weather
-        fetch('https://ipapi.co/json/')
-            .then(r => r.json())
-            .then(loc => {
-                const latitude = loc.latitude;
-                const longitude = loc.longitude;
-                const city = loc.city;
-                const country = loc.country_name;
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
-                fetch(weatherUrl)
-                    .then(r => r.json())
-                    .then(data => {
-                        const cw = data.current_weather;
-                        const daily = data.daily;
-                        const w = document.getElementById('weather');
-                        const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        let html = `
-                  <div class="weather-header">
-                    <div class="weather-location">${city}, ${country}</div>
-                    <div class="weather-update">update: ${up}</div>
-                  </div>
-                  <div class="weather-main">
-                    <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
-                    <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
-                  </div>
-                  <div class="weather-forecast">`;
-                        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                        for (let i = 1; i <= 4; i++) {
-                            const d = new Date(daily.time[i]);
-                            const day = weekdays[d.getDay()];
-                            const icon = getWeatherEmoji(daily.weathercode[i]);
-                            const min = daily.temperature_2m_min[i].toFixed(1);
-                            const max = daily.temperature_2m_max[i].toFixed(1);
-                            html += `
-                    <div class="forecast-day">
-                      <div class="forecast-name">${day}</div>
-                      <div class="forecast-icon">${icon}</div>
-                      <div class="forecast-range">${min}-${max}°</div>
-                    </div>`;
+        // Fetch weather given coords and location labels
+        async function fetchWeather(latitude, longitude, city, country) {
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
+            try {
+                const data = await fetch(weatherUrl).then(r => r.json());
+                const cw = data.current_weather;
+                const daily = data.daily;
+                const w = document.getElementById('weather');
+                const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                let html = `
+              <div class="weather-header">
+                <div class="weather-location">${city}${country ? ', ' + country : ''}</div>
+                <div class="weather-update">update: ${up}</div>
+              </div>
+              <div class="weather-main">
+                <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
+                <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
+              </div>
+              <div class="weather-forecast">`;
+                const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                for (let i = 1; i <= 4; i++) {
+                    const d = new Date(daily.time[i]);
+                    const day = weekdays[d.getDay()];
+                    const icon = getWeatherEmoji(daily.weathercode[i]);
+                    const min = daily.temperature_2m_min[i].toFixed(1);
+                    const max = daily.temperature_2m_max[i].toFixed(1);
+                    html += `
+                <div class="forecast-day">
+                  <div class="forecast-name">${day}</div>
+                  <div class="forecast-icon">${icon}</div>
+                  <div class="forecast-range">${min}-${max}°</div>
+                </div>`;
+                }
+                html += `</div>`;
+                w.innerHTML = html;
+            } catch {
+                // silent
+            }
+        }
+
+        // Fallback to IP-based lookup
+        function fetchWeatherByIP() {
+            fetch('https://ipapi.co/json/')
+                .then(r => r.json())
+                .then(loc => {
+                    fetchWeather(loc.latitude, loc.longitude, loc.city, loc.country_name);
+                })
+                .catch(() => {/* silent */ });
+        }
+
+        // Try geolocation first, then fallback
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async pos => {
+                    const { latitude, longitude } = pos.coords;
+                    // Reverse geocode for city/country
+                    let city = 'Your Location', country = '';
+                    try {
+                        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
+                        const geoData = await geoRes.json();
+                        if (geoData.results && geoData.results.length) {
+                            city = geoData.results[0].name;
+                            country = geoData.results[0].country;
                         }
-                        html += `</div>`;
-                        w.innerHTML = html;
-                    })
-                    .catch(() => {/* silent */ });
-            })
-            .catch(() => {/* silent */ });
+                    } catch { }
+                    fetchWeather(latitude, longitude, city, country);
+                },
+                () => { fetchWeatherByIP(); }
+            );
+        } else {
+            fetchWeatherByIP();
+        }
         // Hide weather widget if it overlaps the clock or greeting
         function checkWeatherOverlap() {
             const weather = document.getElementById('weather');
