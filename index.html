@@ -59,6 +59,12 @@
             /* semi‑bold */
         }
 
+        /* Center the greeting text */
+        #greeting {
+            width: 100%;
+            text-align: center;
+        }
+
         .quote {
             font-style: italic;
             opacity: 0.7;
@@ -210,56 +216,104 @@
             /* semi‑bold */
         }
 
-        /* Responsive styles for mobile */
+        /* Weather container styling */
+        #weather.bookmark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin: 0;
+        }
+
+        /* Hide weather addon on viewports narrower than 1000px */
+        @media (max-width: 1000px) {
+            #weather.bookmark {
+                display: none;
+            }
+        }
+
+        /* Enhanced mobile-friendly styles */
         @media (max-width: 600px) {
+
+            /* Body adjustments */
             body {
-                padding: 20px;
+                padding: 10px 5px;
+                /* height: auto; */
+                min-height: 100vh;
+                justify-content: flex-start;
             }
 
+            /* Greeting */
+            #greeting {
+                font-size: 1.8rem;
+                margin-top: 20px;
+            }
+
+            /* Quote */
+            .quote {
+                font-size: 0.9rem;
+                margin: 5px 0;
+            }
+
+            /* Clock */
             .clock {
-                font-size: 5rem;
+                font-size: 4rem;
+                margin: 5px 0;
+            }
+
+            /* Search bar */
+            .search-bar {
+                margin: 15px 0;
+                width: 100%;
+                flex-direction: column;
+                align-items: center;
             }
 
             input {
-                width: 90%;
-                font-size: 1rem;
-            }
-
-            .search-bar {
-                flex-direction: column;
-                align-items: stretch;
-                margin-top: 100px;
-            }
-
-            .search-bar button {
-                margin-left: 0;
-                margin-top: 10px;
                 width: 100%;
+                max-width: none;
             }
 
             .engine-wrapper {
-                margin-left: 0;
-                margin-top: 10px;
+                margin: 10px 0;
                 justify-content: center;
             }
 
+            /* Bookmarks grid */
             .bookmarks {
-                gap: 10px;
+                grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                gap: 12px;
+                margin-top: 15px;
+                max-height: none;
+                width: 100%;
+                padding: 0 10px;
             }
 
             .bookmark,
             .bookmark-add {
                 width: 60px;
-                height: auto;
             }
 
             .bookmark-icon {
-                width: 36px;
-                height: 36px;
+                width: 32px;
+                height: 32px;
             }
 
             .bookmark-name {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
+            }
+
+            /* Hide tools pane completely */
+            .tools {
+                display: none;
             }
         }
 
@@ -273,10 +327,130 @@
                 background: rgba(255, 255, 255, 0.35);
             }
         }
+
+        /* Tools pane positioning and weather widget style */
+        .tools {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 200px;
+            /* background: rgba(0, 0, 0, 0.5); */
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Username styling */
+        #username {
+            cursor: pointer;
+        }
+
+        #username:hover {
+            text-decoration: underline dashed;
+        }
+
+        #weather {
+            font-size: 0.9rem;
+        }
+
+        /* Weather card styling matching bookmarks */
+        .weather-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .weather-temp,
+        .weather-wind {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* Enhanced weather widget layout */
+        .weather-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            margin-bottom: 8px;
+            text-align: center;
+            gap: 4px;
+        }
+
+        .weather-location {
+            font-weight: bold;
+        }
+
+        .weather-update {
+            opacity: 0.7;
+        }
+
+        .weather-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .weather-temp-large {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .weather-forecast {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            /* prevent wrapping so items stay side by side */
+            flex-wrap: nowrap;
+            padding: 0 4px;
+        }
+
+        .forecast-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+        }
+
+        .forecast-name {
+            margin-bottom: 2px;
+        }
+
+        .forecast-icon {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .forecast-range {}
+
+        @media (max-width: 600px) {
+            .tools {
+                position: static;
+                width: 90%;
+                margin: 20px auto 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            #weather.bookmark {
+                display: none;
+                position: static;
+                margin: 20px auto;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- Sidebar removed -->
+    <aside class="tools">
+        <div id="weather" class="bookmark">Loading weather...</div>
+    </aside>
+    <!-- Footer bar removed -->
+    <!-- Settings gear and modal removed -->
     <h1 id="greeting">Loading greeting...</h1>
     <div class="quote" id="quote">"Loading quote..."</div>
     <div class="clock" id="clock">Loading time...</div>
@@ -301,6 +475,8 @@
 
     <script>
         function updateGreeting() {
+            // Load saved name or default to Tokyo
+            const userName = localStorage.getItem('username') || 'Tokyo';
             const hour = new Date().getHours();
             let greeting = "Hello";
             let emoji = "🌞";
@@ -319,7 +495,18 @@
                 emoji = "🌙";
             }
 
-            document.getElementById("greeting").textContent = `${greeting}, Tokyo ${emoji}`;
+            const g = document.getElementById("greeting");
+            g.innerHTML = `${greeting}, <span id="username">${userName}</span> ${emoji}`;
+
+            // Make username clickable to change it
+            const nameSpan = document.getElementById("username");
+            nameSpan.addEventListener("click", () => {
+                const newName = prompt("Enter your name:", userName);
+                if (newName) {
+                    localStorage.setItem("username", newName);
+                    updateGreeting();
+                }
+            });
         }
         updateGreeting();
 
@@ -537,6 +724,92 @@
             container.appendChild(addTile);
         }
         renderBookmarks();
+        // Settings modal, quote toggle, and to-do listeners removed
+
+        // Helper to map weather codes to emoji
+        function getWeatherEmoji(code) {
+            if (code === 0) return '☀️';
+            if (code >= 1 && code <= 3) return '🌤️';
+            if (code >= 45 && code <= 48) return '🌫️';
+            if ((code >= 51 && code <= 67) || (code >= 80 && code <= 86)) return '🌧️';
+            if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return '🌨️';
+            if (code >= 95 && code <= 99) return '⛈️';
+            return '☁️';
+        }
+
+        // Fetch location via IP and then weather
+        fetch('https://ipapi.co/json/')
+            .then(r => r.json())
+            .then(loc => {
+                const latitude = loc.latitude;
+                const longitude = loc.longitude;
+                const city = loc.city;
+                const country = loc.country_name;
+                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
+                fetch(weatherUrl)
+                    .then(r => r.json())
+                    .then(data => {
+                        const cw = data.current_weather;
+                        const daily = data.daily;
+                        const w = document.getElementById('weather');
+                        const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        let html = `
+                  <div class="weather-header">
+                    <div class="weather-location">${city}, ${country}</div>
+                    <div class="weather-update">update: ${up}</div>
+                  </div>
+                  <div class="weather-main">
+                    <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
+                    <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
+                  </div>
+                  <div class="weather-forecast">`;
+                        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                        for (let i = 1; i <= 4; i++) {
+                            const d = new Date(daily.time[i]);
+                            const day = weekdays[d.getDay()];
+                            const icon = getWeatherEmoji(daily.weathercode[i]);
+                            const min = daily.temperature_2m_min[i].toFixed(1);
+                            const max = daily.temperature_2m_max[i].toFixed(1);
+                            html += `
+                    <div class="forecast-day">
+                      <div class="forecast-name">${day}</div>
+                      <div class="forecast-icon">${icon}</div>
+                      <div class="forecast-range">${min}-${max}°</div>
+                    </div>`;
+                        }
+                        html += `</div>`;
+                        w.innerHTML = html;
+                    })
+                    .catch(() => {/* silent */ });
+            })
+            .catch(() => {/* silent */ });
+        // Hide weather widget if it overlaps the clock or greeting
+        function checkWeatherOverlap() {
+            const weather = document.getElementById('weather');
+            const clock = document.getElementById('clock');
+            const greeting = document.getElementById('greeting');
+            if (!weather || !clock || !greeting) return;
+            // Hide on narrow viewports
+            if (window.innerWidth < 1000) {
+                weather.style.display = 'none';
+                return;
+            }
+            const wRect = weather.getBoundingClientRect();
+            const cRect = clock.getBoundingClientRect();
+            const gRect = greeting.getBoundingClientRect();
+            const overlapClock = !(wRect.right < cRect.left ||
+                wRect.left > cRect.right ||
+                wRect.bottom < cRect.top ||
+                wRect.top > cRect.bottom);
+            const overlapGreeting = !(wRect.right < gRect.left ||
+                wRect.left > gRect.right ||
+                wRect.bottom < gRect.top ||
+                wRect.top > gRect.bottom);
+            const overlap = overlapClock || overlapGreeting;
+            weather.style.display = overlap ? 'none' : '';
+        }
+        window.addEventListener('load', checkWeatherOverlap);
+        window.addEventListener('resize', checkWeatherOverlap);
     </script>
 </body>
 
