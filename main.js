@@ -277,8 +277,12 @@ async function renderBookmarks() {
             img.onerror = function () {
                 this.onerror = null;
                 a.innerHTML = `${fallbackIconHtml}<span class="bookmark-name">${name}</span>`;
-                if (window.lucide) lucide.createIcons();
-                if (window.feather) feather.replace();
+                try {
+                    if (window.lucide) lucide.createIcons();
+                    if (window.feather) feather.replace();
+                } catch (e) {
+                    console.warn("Fallback icon render failed:", e);
+                }
             };
         }
 
@@ -367,10 +371,25 @@ searchInput.addEventListener('blur', () => {
 });
 
 // Hide suggestions when clicking outside
-document.addEventListener('click', (e) => {
-    if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
-        hideSuggestions();
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    } catch (e) {
+        console.warn("Lucide init failed:", e);
     }
+
+    try {
+        if (window.feather && typeof feather.replace === 'function') {
+            feather.replace();
+        }
+    } catch (e) {
+        console.warn("Feather init failed:", e);
+    }
+
+    renderBookmarks();
+    initializeWeather();
 });
 
 function showSuggestions(query) {
@@ -448,17 +467,6 @@ function getWeatherEmoji(code) {
     return '☁️';
 }
 
-// After DOMContentLoaded, replace Lucide and Feather icons
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.lucide) lucide.createIcons();
-    if (window.feather) feather.replace();
-
-    // Initialize bookmarks after DOM is loaded
-    renderBookmarks();
-
-    // Initialize weather after DOM is loaded
-    initializeWeather();
-});
 
 // Initialize weather functionality
 function initializeWeather() {
@@ -599,6 +607,12 @@ async function fetchWeather(latitude, longitude, city, country) {
         }
         html += `</div>`;
         w.innerHTML = html;
+        try {
+            if (window.lucide) lucide.createIcons();
+            if (window.feather) feather.replace();
+        } catch (e) {
+            console.warn("Failed to re-initialize icons after weather render", e);
+        }
         console.log('Weather updated successfully');
     } catch (error) {
         console.error('Weather fetch failed:', error);
