@@ -50,6 +50,11 @@
             /* let clicks through */
             z-index: 0;
             /* below page content */
+            transition: background-color 0.3s ease;
+        }
+
+        body.search-focused::before {
+            background: rgba(0, 0, 0, 0.75);
         }
 
         /* ensure overlay is below content */
@@ -945,9 +950,14 @@
         });
 
         searchInput.addEventListener('focus', () => {
+            document.body.classList.add('search-focused');
             if (searchInput.value.trim().length > 0) {
                 showSuggestions(searchInput.value.trim());
             }
+        });
+
+        searchInput.addEventListener('blur', () => {
+            document.body.classList.remove('search-focused');
         });
 
         // Hide suggestions when clicking outside
