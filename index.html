@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Tokyo Homepage">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -536,7 +537,7 @@
             "Keep going. Everything you need will come to you.",
             "Discipline is choosing between what you want now and what you want most.",
             "The grind never lies.",
-            "Focus beats talent when talent doesn’t focus.",
+            "Focus beats talent when talent doesn't focus.",
             "Success is the sum of small efforts repeated day in and day out.",
             "Push yourself, because no one else is going to do it for you.",
             "The only limit to your impact is your imagination and commitment.",
@@ -554,7 +555,7 @@
             "You miss 100% of the shots you don't take.",
             "Be so good they can't ignore you.",
             "Work until your idols become your rivals.",
-            "Don’t limit your challenges. Challenge your limits.",
+            "Don't limit your challenges. Challenge your limits.",
             "Nothing worth having comes easy.",
             "Stay hungry. Stay foolish.",
             "Winners focus on winning. Losers focus on winners.",
@@ -663,13 +664,24 @@
                     bookmarks[i].name = name;
                     localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
                 }
-                const icon = b.icon || `${url.origin}/favicon.ico`;
+                // Special-case Gmail favicon
+                let icon = b.icon || `${url.origin}/favicon.ico`;
+                if (url.hostname === 'mail.google.com') {
+                    icon = 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico';
+                }
 
                 const a = document.createElement('a');
                 a.href = b.url;
                 a.target = "_self";
                 a.className = "bookmark";
                 a.innerHTML = `<img src="${icon}" alt="${name}" class="bookmark-icon"><span class="bookmark-name">${name}</span>`;
+
+                // Fallback to default icon if favicon fails to load
+                const img = a.querySelector('img');
+                img.onerror = function () {
+                    this.onerror = null;
+                    this.src = 'icons/icon-192.png'; // fallback icon
+                };
 
                 a.addEventListener('click', (e) => {
                     // Left click opens the link
