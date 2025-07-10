@@ -12,6 +12,10 @@
     <link rel="apple-touch-icon" href="icons/icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <!-- Icon Libraries -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
     <style>
         :root {
             --bg-color: #1e1e1e;
@@ -654,6 +658,16 @@
             const container = document.getElementById('bookmarks');
             container.innerHTML = "";
 
+            // Map common sites to Lucide/Feather/Tabler icon names
+            const iconMap = {
+                'github.com': { lucide: 'github', feather: 'github', tabler: 'brand-github' },
+                'mail.google.com': { lucide: 'mail', feather: 'mail', tabler: 'mail' },
+                'music.youtube.com': { lucide: 'youtube', feather: 'youtube', tabler: 'brand-youtube' },
+                'www.reddit.com': { lucide: 'reddit', feather: '', tabler: 'brand-reddit' },
+                'twitter.com': { lucide: 'twitter', feather: 'twitter', tabler: 'brand-twitter' },
+                // Add more mappings as needed
+            };
+
             for (let i = 0; i < bookmarks.length; i++) {
                 const b = bookmarks[i];
                 const url = new URL(b.url);
@@ -664,24 +678,38 @@
                     bookmarks[i].name = name;
                     localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
                 }
-                // Special-case Gmail favicon
-                let icon = b.icon || `${url.origin}/favicon.ico`;
-                if (url.hostname === 'mail.google.com') {
-                    icon = 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico';
+                // Icon logic: Lucide > Feather > Tabler > favicon > fallback
+                let iconHtml = '';
+                const mapping = iconMap[url.hostname];
+                if (mapping && mapping.lucide) {
+                    iconHtml = `<i data-lucide="${mapping.lucide}" class="bookmark-icon"></i>`;
+                } else if (mapping && mapping.feather) {
+                    iconHtml = `<i data-feather="${mapping.feather}" class="bookmark-icon"></i>`;
+                } else if (mapping && mapping.tabler) {
+                    iconHtml = `<i class="ti ${mapping.tabler} bookmark-icon"></i>`;
+                } else {
+                    // fallback to favicon image
+                    let icon = b.icon || `${url.origin}/favicon.ico`;
+                    if (url.hostname === 'mail.google.com') {
+                        icon = 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico';
+                    }
+                    iconHtml = `<img src="${icon}" alt="${name}" class="bookmark-icon">`;
                 }
 
                 const a = document.createElement('a');
                 a.href = b.url;
                 a.target = "_self";
                 a.className = "bookmark";
-                a.innerHTML = `<img src="${icon}" alt="${name}" class="bookmark-icon"><span class="bookmark-name">${name}</span>`;
+                a.innerHTML = `${iconHtml}<span class="bookmark-name">${name}</span>`;
 
-                // Fallback to default icon if favicon fails to load
+                // Fallback to default icon if favicon fails to load (for <img> only)
                 const img = a.querySelector('img');
-                img.onerror = function () {
-                    this.onerror = null;
-                    this.src = 'icons/icon-192.png'; // fallback icon
-                };
+                if (img) {
+                    img.onerror = function () {
+                        this.onerror = null;
+                        this.src = 'icons/icon-192.png'; // fallback icon
+                    };
+                }
 
                 a.addEventListener('click', (e) => {
                     // Left click opens the link
@@ -848,6 +876,12 @@
         }
         window.addEventListener('load', checkWeatherOverlap);
         window.addEventListener('resize', checkWeatherOverlap);
+
+        // After DOMContentLoaded, replace Lucide and Feather icons
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) lucide.createIcons();
+            if (window.feather) feather.replace();
+        });
     </script>
 </body>
 
