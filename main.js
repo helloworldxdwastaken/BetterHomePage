@@ -495,7 +495,15 @@ function initializeWeather() {
             },
             (error) => {
                 console.log('Geolocation failed:', error);
-                fetchWeatherByIP();
+                const weatherElement = document.getElementById('weather');
+                if (error.code === error.PERMISSION_DENIED) {
+                    weatherElement.innerHTML = '<div>Location access denied.<br><button id="retryWeather">Retry</button></div>';
+                    document.getElementById('retryWeather').onclick = () => {
+                        initializeWeather();
+                    };
+                } else {
+                    fetchWeatherByIP();
+                }
             }
         );
     } else {
