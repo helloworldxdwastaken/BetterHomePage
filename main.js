@@ -331,14 +331,33 @@ const closeSettings = document.getElementById('closeSettings');
 const weatherToggle = document.getElementById('weatherToggle');
 const fontSelect = document.getElementById('fontSelect');
 
+// --- Settings Persistence Helpers ---
+function setSetting(key, value) {
+    try {
+        localStorage.setItem(key, value);
+    } catch (e) {
+        // Fallback to cookies
+        document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)};path=/;max-age=31536000`;
+    }
+}
+function getSetting(key) {
+    try {
+        const v = localStorage.getItem(key);
+        if (v !== null) return v;
+    } catch (e) { }
+    // Fallback to cookies
+    const match = document.cookie.match(new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
 // Load saved settings
-const savedWeatherToggle = localStorage.getItem('weatherToggle');
+const savedWeatherToggle = getSetting('weatherToggle');
 if (savedWeatherToggle !== null) {
     weatherToggle.checked = savedWeatherToggle === 'true';
     document.getElementById('weather').style.display = weatherToggle.checked ? 'block' : 'none';
 }
 
-const savedFont = localStorage.getItem('selectedFont') || 'Montserrat';
+const savedFont = getSetting('selectedFont') || 'Montserrat';
 fontSelect.value = savedFont;
 loadGoogleFont(savedFont);
 
@@ -365,14 +384,14 @@ settingsModal.addEventListener('click', (e) => {
 weatherToggle.addEventListener('change', () => {
     const weather = document.getElementById('weather');
     weather.style.display = weatherToggle.checked ? 'block' : 'none';
-    localStorage.setItem('weatherToggle', weatherToggle.checked);
+    setSetting('weatherToggle', weatherToggle.checked);
 });
 
 // Font selection
 fontSelect.addEventListener('change', () => {
     const selectedFont = fontSelect.value;
     loadGoogleFont(selectedFont);
-    localStorage.setItem('selectedFont', selectedFont);
+    setSetting('selectedFont', selectedFont);
 });
 
 // Load Google Font
@@ -492,129 +511,12 @@ function showSuggestions(query) {
 }
 
 function hideSuggestions() {
+    searchSuggestions.innerHTML = '';
     searchSuggestions.classList.remove('show');
 }
 
 function selectSuggestion(text) {
+    const searchInput = document.getElementById('searchInput');
     searchInput.value = text;
     hideSuggestions();
-    searchInput.focus();
 }
-
-// Save search history
-document.getElementById('searchForm').addEventListener('submit', (e) => {
-    const query = searchInput.value.trim();
-    if (query && !searchHistory.includes(query)) {
-        searchHistory.unshift(query);
-        searchHistory = searchHistory.slice(0, 10); // Keep last 10 searches
-        localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
-    }
-});
-
-// Enhanced weather with loading animation
-async function fetchWeather(latitude, longitude, city, country) {
-    const w = document.getElementById('weather');
-    w.innerHTML = '<div class="weather-loading"></div> Loading weather...';
-
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
-    try {
-        const data = await fetch(weatherUrl).then(r => r.json());
-        const cw = data.current_weather;
-        const daily = data.daily;
-        const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let html = `
-      <div class="weather-header">
-        <div class="weather-location">${city}${country ? ', ' + country : ''}</div>
-        <div class="weather-update">update: ${up}</div>
-      
-      <div class="weather-main">
-        <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
-        <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
-      </div>
-      <div class="weather-forecast">`;
-        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        for (let i = 1; i <= 4; i++) {
-            const d = new Date(daily.time[i]);
-            const day = weekdays[d.getDay()];
-            const icon = getWeatherEmoji(daily.weathercode[i]);
-            const min = daily.temperature_2m_min[i].toFixed(1);
-            const max = daily.temperature_2m_max[i].toFixed(1);
-            html += `
-        <div class="forecast-day">
-          <div class="forecast-name">${day}</div>
-          <div class="forecast-icon">${icon}</div>
-          <div class="forecast-range">${min}-${max}°</div>
-        </div>`;
-        }
-        html += `</div>`;
-        w.innerHTML = html;
-    } catch {
-        w.innerHTML = 'Weather unavailable';
-    }
-}
-
-// Fallback to IP-based lookup
-function fetchWeatherByIP() {
-    fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(loc => {
-            fetchWeather(loc.latitude, loc.longitude, loc.city, loc.country_name);
-        })
-        .catch(() => {/* silent */ });
-}
-
-// Try geolocation first, then fallback
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        async pos => {
-            const { latitude, longitude } = pos.coords;
-            // Reverse geocode for city/country
-            let city = 'Your Location', country = '';
-            try {
-                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
-                const geoData = await geoRes.json();
-                if (geoData.results && geoData.results.length) {
-                    city = geoData.results[0].name;
-                    country = geoData.results[0].country;
-                }
-            } catch { }
-            fetchWeather(latitude, longitude, city, country);
-        },
-        () => { fetchWeatherByIP(); }
-    );
-} else {
-    fetchWeatherByIP();
-}
-// Hide weather widget if it overlaps the clock or greeting
-function checkWeatherOverlap() {
-    const weather = document.getElementById('weather');
-    const clock = document.getElementById('clock');
-    const greeting = document.getElementById('greeting');
-    if (!weather || !clock || !greeting) return;
-    // Hide on narrow viewports
-    if (window.innerWidth < 1000) {
-        weather.style.display = 'none';
-        return;
-    }
-    const wRect = weather.getBoundingClientRect();
-    const cRect = clock.getBoundingClientRect();
-    const gRect = greeting.getBoundingClientRect();
-    const overlapClock = !(wRect.right < cRect.left ||
-        wRect.left > cRect.right ||
-        wRect.bottom < cRect.top ||
-        wRect.top > cRect.bottom);
-    const overlapGreeting = !(wRect.right < gRect.left ||
-        wRect.left > gRect.right ||
-        wRect.bottom < gRect.top ||
-        wRect.top > gRect.bottom);
-    const overlap = overlapClock || overlapGreeting;
-    weather.style.display = overlap ? 'none' : '';
-}
-window.addEventListener('load', checkWeatherOverlap);
-window.addEventListener('resize', checkWeatherOverlap);
-
-// After DOMContentLoaded, replace Lucide and Feather icons
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.lucide) lucide.createIcons();
-    if (window.feather) feather.replace();
-}); 

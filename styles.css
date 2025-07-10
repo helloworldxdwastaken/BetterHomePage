@@ -502,8 +502,9 @@ input {
 
 .settings-btn {
     position: fixed;
-    right: 30px;
+    left: 30px;
     bottom: 30px;
+    right: auto;
     background: #222;
     color: #fff;
     border: none;
@@ -534,7 +535,7 @@ input {
     background: rgba(0, 0, 0, 0.25);
     display: flex;
     align-items: flex-end;
-    justify-content: flex-end;
+    justify-content: flex-start;
     z-index: 1002;
     pointer-events: none;
     opacity: 0;
@@ -554,7 +555,7 @@ input {
     border-radius: 18px 18px 0 0;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
     padding: 28px 28px 20px 28px;
-    margin: 0 30px 30px 0;
+    margin: 0 0 30px 30px;
     transform: translateY(100px) scale(0.98);
     opacity: 0;
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
