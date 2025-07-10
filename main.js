@@ -440,14 +440,117 @@ function getWeatherEmoji(code) {
     return '☁️';
 }
 
+// After DOMContentLoaded, replace Lucide and Feather icons
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.lucide) lucide.createIcons();
+    if (window.feather) feather.replace();
+
+    // Initialize weather after DOM is loaded
+    initializeWeather();
+});
+
+// Initialize weather functionality
+function initializeWeather() {
+    console.log('Initializing weather...');
+
+    // Check if weather element exists
+    const weatherElement = document.getElementById('weather');
+    if (!weatherElement) {
+        console.error('Weather element not found in DOM!');
+        return;
+    }
+    console.log('Weather element found:', weatherElement);
+
+    // Try geolocation first, then fallback
+    if (navigator.geolocation) {
+        console.log('Geolocation available, requesting position...');
+        navigator.geolocation.getCurrentPosition(
+            async pos => {
+                console.log('Geolocation successful:', pos.coords);
+                const { latitude, longitude } = pos.coords;
+                // Reverse geocode for city/country
+                let city = 'Your Location', country = '';
+                try {
+                    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
+                    const geoData = await geoRes.json();
+                    if (geoData.results && geoData.results.length) {
+                        city = geoData.results[0].name;
+                        country = geoData.results[0].country;
+                    }
+                } catch (error) {
+                    console.log('Reverse geocoding failed:', error);
+                }
+                fetchWeather(latitude, longitude, city, country);
+            },
+            (error) => {
+                console.log('Geolocation failed:', error);
+                fetchWeatherByIP();
+            }
+        );
+    } else {
+        console.log('Geolocation not available, using IP fallback');
+        fetchWeatherByIP();
+    }
+}
+
+// Add manual refresh function for debugging
+function refreshWeather() {
+    console.log('Manual weather refresh triggered');
+    initializeWeather();
+}
+
+// Make refreshWeather available globally for debugging
+window.refreshWeather = refreshWeather;
+
+// Test weather with hardcoded coordinates (Tokyo)
+function testWeather() {
+    console.log('Testing weather with Tokyo coordinates...');
+    fetchWeather(35.6762, 139.6503, 'Tokyo', 'Japan');
+}
+
+// Make testWeather available globally for debugging
+window.testWeather = testWeather;
+
+// Fallback to IP-based lookup
+function fetchWeatherByIP() {
+    console.log('Fetching weather by IP...');
+    fetch('https://ipapi.co/json/')
+        .then(r => r.json())
+        .then(loc => {
+            console.log('IP location data:', loc);
+            fetchWeather(loc.latitude, loc.longitude, loc.city, loc.country_name);
+        })
+        .catch((error) => {
+            console.log('IP geolocation failed:', error);
+            // Set a fallback message
+            const w = document.getElementById('weather');
+            if (w) {
+                w.innerHTML = 'Weather unavailable';
+            }
+        });
+}
+
 // Enhanced weather with loading animation
 async function fetchWeather(latitude, longitude, city, country) {
+    console.log('Fetching weather for:', latitude, longitude, city, country);
     const w = document.getElementById('weather');
+    if (!w) {
+        console.error('Weather element not found!');
+        return;
+    }
+
     w.innerHTML = '<div class="weather-loading"></div> Loading weather...';
 
     const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
     try {
-        const data = await fetch(weatherUrl).then(r => r.json());
+        console.log('Fetching from weather API:', weatherUrl);
+        const response = await fetch(weatherUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Weather data received:', data);
+
         const cw = data.current_weather;
         const daily = data.daily;
         const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -477,42 +580,11 @@ async function fetchWeather(latitude, longitude, city, country) {
         }
         html += `</div>`;
         w.innerHTML = html;
-    } catch {
+        console.log('Weather updated successfully');
+    } catch (error) {
+        console.error('Weather fetch failed:', error);
         w.innerHTML = 'Weather unavailable';
     }
-}
-
-// Fallback to IP-based lookup
-function fetchWeatherByIP() {
-    fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(loc => {
-            fetchWeather(loc.latitude, loc.longitude, loc.city, loc.country_name);
-        })
-        .catch(() => {/* silent */ });
-}
-
-// Try geolocation first, then fallback
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        async pos => {
-            const { latitude, longitude } = pos.coords;
-            // Reverse geocode for city/country
-            let city = 'Your Location', country = '';
-            try {
-                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
-                const geoData = await geoRes.json();
-                if (geoData.results && geoData.results.length) {
-                    city = geoData.results[0].name;
-                    country = geoData.results[0].country;
-                }
-            } catch { }
-            fetchWeather(latitude, longitude, city, country);
-        },
-        () => { fetchWeatherByIP(); }
-    );
-} else {
-    fetchWeatherByIP();
 }
 
 // Hide weather widget if it overlaps the clock or greeting
@@ -543,9 +615,3 @@ function checkWeatherOverlap() {
 
 window.addEventListener('load', checkWeatherOverlap);
 window.addEventListener('resize', checkWeatherOverlap);
-
-// After DOMContentLoaded, replace Lucide and Feather icons
-document.addEventListener('DOMContentLoaded', function () {
-    if (window.lucide) lucide.createIcons();
-    if (window.feather) feather.replace();
-});
