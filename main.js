@@ -240,7 +240,11 @@ async function renderBookmarks() {
         // Icon logic: Lucide > Feather > Tabler > favicon > fallback
         let iconHtml = '';
         const mapping = iconMap[url.hostname];
-        if (mapping && mapping.lucide) {
+        // Custom black and white Reddit SVG
+        const redditSVG = `<svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="black" stroke-width="1.5" fill="white"/><circle cx="9" cy="13.5" r="1.5" fill="black"/><circle cx="15" cy="13.5" r="1.5" fill="black"/><path d="M8.5 16c1.5 1 5.5 1 7 0" stroke="black" stroke-width="1.5" fill="none"/><circle cx="19" cy="6" r="1.2" fill="white" stroke="black" stroke-width="1.2"/><path d="M16.5 7.5l-2.5-1 1-3" stroke="black" stroke-width="1.2" fill="none"/></svg>`;
+        if (url.hostname === 'reddit.com' || url.hostname === 'www.reddit.com') {
+            iconHtml = redditSVG;
+        } else if (mapping && mapping.lucide) {
             iconHtml = `<i data-lucide="${mapping.lucide}" class="bookmark-icon"></i>`;
         } else if (mapping && mapping.feather) {
             iconHtml = `<i data-feather="${mapping.feather}" class="bookmark-icon"></i>`;
