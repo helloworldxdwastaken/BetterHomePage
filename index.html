@@ -118,10 +118,15 @@
             border-radius: 6px;
             display: none;
             z-index: 10;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .engine-select.show {
             display: flex;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .engine-wrapper {
@@ -671,6 +676,11 @@
                 'www.facebook.com': { lucide: 'facebook', feather: '', tabler: 'brand-facebook' },
                 'youtube.com': { lucide: 'youtube', feather: 'youtube', tabler: 'brand-youtube' },
                 'www.youtube.com': { lucide: 'youtube', feather: 'youtube', tabler: 'brand-youtube' },
+                'wix.com': { lucide: 'globe', feather: 'globe', tabler: 'world' },
+                'www.wix.com': { lucide: 'globe', feather: 'globe', tabler: 'world' },
+                'reddit.com': { lucide: 'reddit', feather: '', tabler: 'brand-reddit' },
+                'web.telegram.org': { lucide: 'message-circle', feather: 'message-circle', tabler: 'brand-telegram' },
+                't.me': { lucide: 'message-circle', feather: 'message-circle', tabler: 'brand-telegram' },
                 // Add more mappings as needed
             };
 
