@@ -196,9 +196,8 @@
         }
 
         .bookmark:hover {
-            transform: scale(1.1);
-            filter: brightness(1.2);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+            filter: brightness(1.1);
         }
 
         .bookmark-add {
@@ -219,8 +218,7 @@
         .bookmark-add:hover {
             border-color: #fff;
             color: #fff;
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
         }
 
         .bookmark img {
@@ -237,6 +235,14 @@
             background-color: rgba(255, 255, 255, 0.1);
             padding: 8px;
             box-sizing: border-box;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        .bookmark:hover .bookmark-icon {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            filter: brightness(1.2);
         }
 
         .bookmark-name {
