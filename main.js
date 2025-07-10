@@ -206,7 +206,11 @@ async function renderBookmarks() {
     const container = document.getElementById('bookmarks');
     container.innerHTML = "";
 
-    // Map common sites to Lucide/Feather/Tabler icon names
+    // Limit to 12 bookmarks
+    const maxBookmarks = 12;
+    const displayBookmarks = bookmarks.slice(0, maxBookmarks);
+
+    // Map common sites to Lucide/Feather/Tabler icon names (for fallback)
     const iconMap = {
         'github.com': { lucide: 'github', feather: 'github', tabler: 'brand-github' },
         'mail.google.com': { lucide: 'mail', feather: 'mail', tabler: 'mail' },
@@ -227,36 +231,38 @@ async function renderBookmarks() {
         // Add more mappings as needed
     };
 
-    for (let i = 0; i < bookmarks.length; i++) {
-        const b = bookmarks[i];
+    // Create a grid: 6 top, 6 bottom
+    const topRow = document.createElement('div');
+    topRow.className = 'bookmark-row top-row';
+    const bottomRow = document.createElement('div');
+    bottomRow.className = 'bookmark-row bottom-row';
+
+    for (let i = 0; i < displayBookmarks.length; i++) {
+        const b = displayBookmarks[i];
         const url = new URL(b.url);
         let name = b.name;
         if (!name) {
-            name = await fetchTitle(b.url);
-            name = name || url.hostname.replace("www.", "");
+            name = url.hostname.replace("www.", "");
             bookmarks[i].name = name;
             localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
         }
-        // Icon logic: Lucide > Feather > Tabler > favicon > fallback
-        let iconHtml = '';
+        // Always try favicon first
+        let icon = b.icon || `${url.origin}/favicon.ico`;
+        if (url.hostname === 'mail.google.com') {
+            icon = 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico';
+        }
+        let iconHtml = `<img src="${icon}" alt="${name}" class="bookmark-icon">`;
+        // Fallback to library icon if favicon fails
         const mapping = iconMap[url.hostname];
-        // Custom black and white Reddit SVG
-        const redditSVG = `<svg class="bookmark-icon" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="black" stroke-width="1.5" fill="white"/><circle cx="9" cy="13.5" r="1.5" fill="black"/><circle cx="15" cy="13.5" r="1.5" fill="black"/><path d="M8.5 16c1.5 1 5.5 1 7 0" stroke="black" stroke-width="1.5" fill="none"/><circle cx="19" cy="6" r="1.2" fill="white" stroke="black" stroke-width="1.2"/><path d="M16.5 7.5l-2.5-1 1-3" stroke="black" stroke-width="1.2" fill="none"/></svg>`;
-        if (url.hostname === 'reddit.com' || url.hostname === 'www.reddit.com') {
-            iconHtml = redditSVG;
-        } else if (mapping && mapping.lucide) {
-            iconHtml = `<i data-lucide="${mapping.lucide}" class="bookmark-icon"></i>`;
+        let fallbackIconHtml = '';
+        if (mapping && mapping.lucide) {
+            fallbackIconHtml = `<i data-lucide="${mapping.lucide}" class="bookmark-icon"></i>`;
         } else if (mapping && mapping.feather) {
-            iconHtml = `<i data-feather="${mapping.feather}" class="bookmark-icon"></i>`;
+            fallbackIconHtml = `<i data-feather="${mapping.feather}" class="bookmark-icon"></i>`;
         } else if (mapping && mapping.tabler) {
-            iconHtml = `<i class="ti ${mapping.tabler} bookmark-icon"></i>`;
+            fallbackIconHtml = `<i class="ti ${mapping.tabler} bookmark-icon"></i>`;
         } else {
-            // fallback to favicon image
-            let icon = b.icon || `${url.origin}/favicon.ico`;
-            if (url.hostname === 'mail.google.com') {
-                icon = 'https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico';
-            }
-            iconHtml = `<img src="${icon}" alt="${name}" class="bookmark-icon">`;
+            fallbackIconHtml = `<span class="bookmark-icon" style="display:flex;align-items:center;justify-content:center;font-size:1.5em;">★</span>`;
         }
 
         const a = document.createElement('a');
@@ -265,20 +271,20 @@ async function renderBookmarks() {
         a.className = "bookmark";
         a.innerHTML = `${iconHtml}<span class="bookmark-name">${name}</span>`;
 
-        // Fallback to default icon if favicon fails to load (for <img> only)
+        // Fallback to library icon if favicon fails to load
         const img = a.querySelector('img');
         if (img) {
             img.onerror = function () {
                 this.onerror = null;
-                this.src = 'icons/icon-192.png'; // fallback icon
+                a.innerHTML = `${fallbackIconHtml}<span class="bookmark-name">${name}</span>`;
+                if (window.lucide) lucide.createIcons();
+                if (window.feather) feather.replace();
             };
         }
 
         a.addEventListener('click', (e) => {
-            // Left click opens the link
             window.location.href = b.url;
         });
-
         a.addEventListener('contextmenu', async (e) => {
             e.preventDefault();
             const newUrl = prompt(`Edit URL for ${name}:`, b.url);
@@ -294,8 +300,6 @@ async function renderBookmarks() {
                 renderBookmarks();
             }
         });
-
-        // --- Drag and Drop for custom bookmarks ---
         a.setAttribute('draggable', 'true');
         a.addEventListener('dragstart', e => {
             e.dataTransfer.setData('text/plain', i.toString());
@@ -307,16 +311,21 @@ async function renderBookmarks() {
             e.preventDefault();
             const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
             const toIndex = i;
-            // Only reorder bookmarks if both are user-editable (all bookmarks are now editable)
             const [moved] = bookmarks.splice(fromIndex, 1);
             bookmarks.splice(toIndex, 0, moved);
             localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
             renderBookmarks();
         });
-        // ---
 
-        container.appendChild(a);
+        if (i < 6) {
+            topRow.appendChild(a);
+        } else {
+            bottomRow.appendChild(a);
+        }
     }
+    container.appendChild(topRow);
+    container.appendChild(bottomRow);
+
     // --- "add bookmark" tile ---
     const addTile = document.createElement('div');
     addTile.className = 'bookmark-add';

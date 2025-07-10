@@ -499,3 +499,17 @@ input {
         margin: 20px auto;
     }
 }
+
+.bookmark-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.top-row,
+.bottom-row {
+    width: 100%;
+    justify-content: center;
+}
