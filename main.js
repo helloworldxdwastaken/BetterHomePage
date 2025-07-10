@@ -326,7 +326,6 @@ async function renderBookmarks() {
     addTile.addEventListener('click', () => addBookmarkPrompt());
     container.appendChild(addTile);
 }
-renderBookmarks();
 
 // Enhanced search functionality
 const searchInput = document.getElementById('searchInput');
@@ -444,6 +443,9 @@ function getWeatherEmoji(code) {
 document.addEventListener('DOMContentLoaded', function () {
     if (window.lucide) lucide.createIcons();
     if (window.feather) feather.replace();
+
+    // Initialize bookmarks after DOM is loaded
+    renderBookmarks();
 
     // Initialize weather after DOM is loaded
     initializeWeather();
