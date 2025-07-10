@@ -34,7 +34,7 @@
             height: 100vh;
             background-size: cover;
             background-position: center;
-            transition: background-image 1s ease-in-out;
+            transition: background-image 1.5s ease-in-out;
             position: relative;
             z-index: 0;
         }
@@ -82,9 +82,18 @@
             font-size: 9rem;
             margin: 10px 0;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
+        .clock .digit {
+            display: inline-block;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
 
+        .clock .digit.changing {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
 
         .search-bar {
             position: relative;
@@ -181,6 +190,15 @@
             text-decoration: none;
             width: 70px;
             font-size: 0.8rem;
+            transition: all 0.3s ease;
+            transform: scale(1);
+            filter: brightness(1);
+        }
+
+        .bookmark:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .bookmark-add {
@@ -194,12 +212,15 @@
             color: #888;
             font-size: 2rem;
             cursor: pointer;
-            transition: border-color 0.2s, color 0.2s;
+            transition: all 0.3s ease;
+            transform: scale(1);
         }
 
         .bookmark-add:hover {
             border-color: #fff;
             color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
         .bookmark img {
@@ -451,6 +472,107 @@
                 margin: 20px auto;
             }
         }
+
+        /* Search suggestions dropdown */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            margin-top: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+        }
+
+        .search-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .suggestion-item .icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .suggestion-item .text {
+            flex: 1;
+        }
+
+        .suggestion-item .type {
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        /* Voice search button */
+        .voice-search {
+            position: absolute;
+            right: 50px;
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .voice-search:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .voice-search.recording {
+            background: #ff4444;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Weather loading animation */
+        .weather-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -468,7 +590,8 @@
 
     <div class="search-bar">
         <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
-            <input type="text" name="q" id="searchInput" placeholder="Search…" />
+            <input type="text" name="q" id="searchInput" placeholder="Search…" autocomplete="off" />
+            <div class="search-suggestions" id="searchSuggestions"></div>
         </form>
         <div class="engine-wrapper">
             <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
@@ -530,13 +653,29 @@
         }
         pickLocalWallpaper();
 
-        // Clock
+        // Clock with smooth transitions
         function updateClock() {
             const now = new Date();
             const hours = now.getHours() % 12 || 12;
             const minutes = now.getMinutes().toString().padStart(2, '0');
             const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-            document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+
+            const clockElement = document.getElementById('clock');
+            const newTime = `${hours}:${minutes} ${ampm}`;
+
+            if (clockElement.textContent !== newTime) {
+                // Animate the change
+                const digits = clockElement.querySelectorAll('.digit');
+                digits.forEach(digit => {
+                    digit.classList.add('changing');
+                    setTimeout(() => digit.classList.remove('changing'), 300);
+                });
+
+                // Update with animated digits
+                clockElement.innerHTML = newTime.split('').map(char =>
+                    `<span class="digit">${char}</span>`
+                ).join('');
+            }
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -793,20 +932,115 @@
             return '☁️';
         }
 
-        // Fetch weather given coords and location labels
+        // Enhanced search functionality
+        const searchInput = document.getElementById('searchInput');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+
+        // Search history
+        let searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+
+        // Search suggestions
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim();
+            if (query.length > 0) {
+                showSuggestions(query);
+            } else {
+                hideSuggestions();
+            }
+        });
+
+        searchInput.addEventListener('focus', () => {
+            if (searchInput.value.trim().length > 0) {
+                showSuggestions(searchInput.value.trim());
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                hideSuggestions();
+            }
+        });
+
+        function showSuggestions(query) {
+            const suggestions = [];
+
+            // Add search history
+            searchHistory
+                .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 3)
+                .forEach(item => {
+                    suggestions.push({
+                        text: item,
+                        type: 'History',
+                        icon: 'clock'
+                    });
+                });
+
+            // Add common searches
+            const commonSearches = [
+                'weather', 'news', 'maps', 'translate', 'calculator'
+            ].filter(item => item.toLowerCase().includes(query.toLowerCase()));
+
+            commonSearches.forEach(item => {
+                suggestions.push({
+                    text: item,
+                    type: 'Suggestion',
+                    icon: 'search'
+                });
+            });
+
+            if (suggestions.length > 0) {
+                searchSuggestions.innerHTML = suggestions.map(suggestion => `
+                    <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text}')">
+                        <i data-lucide="${suggestion.icon}" class="icon"></i>
+                        <div class="text">${suggestion.text}</div>
+                        <div class="type">${suggestion.type}</div>
+                    </div>
+                `).join('');
+                searchSuggestions.classList.add('show');
+                lucide.createIcons();
+            } else {
+                hideSuggestions();
+            }
+        }
+
+        function hideSuggestions() {
+            searchSuggestions.classList.remove('show');
+        }
+
+        function selectSuggestion(text) {
+            searchInput.value = text;
+            hideSuggestions();
+            searchInput.focus();
+        }
+
+        // Save search history
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            const query = searchInput.value.trim();
+            if (query && !searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                searchHistory = searchHistory.slice(0, 10); // Keep last 10 searches
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            }
+        });
+
+        // Enhanced weather with loading animation
         async function fetchWeather(latitude, longitude, city, country) {
+            const w = document.getElementById('weather');
+            w.innerHTML = '<div class="weather-loading"></div> Loading weather...';
+
             const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
             try {
                 const data = await fetch(weatherUrl).then(r => r.json());
                 const cw = data.current_weather;
                 const daily = data.daily;
-                const w = document.getElementById('weather');
                 const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 let html = `
               <div class="weather-header">
                 <div class="weather-location">${city}${country ? ', ' + country : ''}</div>
                 <div class="weather-update">update: ${up}</div>
-              </div>
+              
               <div class="weather-main">
                 <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
                 <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
@@ -829,7 +1063,7 @@
                 html += `</div>`;
                 w.innerHTML = html;
             } catch {
-                // silent
+                w.innerHTML = 'Weather unavailable';
             }
         }
 
