@@ -50,7 +50,7 @@
             /* let clicks through */
             z-index: 0;
             /* below page content */
-            transition: background-color 0.3s ease;
+            transition: background-color 0.5s ease;
         }
 
         body.search-focused::before {
@@ -107,6 +107,20 @@
             margin-bottom: 30px;
             margin-top: 20vh;
             /* push it down from the clock */
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-bar.focused {
+            z-index: 20;
+            transform: scale(1.05);
+        }
+
+        .search-bar .engine-wrapper .engine-icon {
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-bar.focused .engine-wrapper .engine-icon {
+            transform: scale(1.12);
         }
 
         .search-bar button {
@@ -951,6 +965,7 @@
 
         searchInput.addEventListener('focus', () => {
             document.body.classList.add('search-focused');
+            document.querySelector('.search-bar').classList.add('focused');
             if (searchInput.value.trim().length > 0) {
                 showSuggestions(searchInput.value.trim());
             }
@@ -958,6 +973,7 @@
 
         searchInput.addEventListener('blur', () => {
             document.body.classList.remove('search-focused');
+            document.querySelector('.search-bar').classList.remove('focused');
         });
 
         // Hide suggestions when clicking outside
