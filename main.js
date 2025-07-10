@@ -323,7 +323,82 @@ async function renderBookmarks() {
     container.appendChild(addTile);
 }
 renderBookmarks();
-// Settings modal, quote toggle, and to-do listeners removed
+
+// Settings Modal Functionality
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsModal = document.getElementById('settingsModal');
+const closeSettings = document.getElementById('closeSettings');
+const weatherToggle = document.getElementById('weatherToggle');
+const fontSelect = document.getElementById('fontSelect');
+
+// Load saved settings
+const savedWeatherToggle = localStorage.getItem('weatherToggle');
+if (savedWeatherToggle !== null) {
+    weatherToggle.checked = savedWeatherToggle === 'true';
+    document.getElementById('weather').style.display = weatherToggle.checked ? 'block' : 'none';
+}
+
+const savedFont = localStorage.getItem('selectedFont') || 'Montserrat';
+fontSelect.value = savedFont;
+loadGoogleFont(savedFont);
+
+// Settings modal open/close
+settingsBtn.addEventListener('click', () => {
+    settingsModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+});
+
+closeSettings.addEventListener('click', () => {
+    settingsModal.classList.remove('open');
+    document.body.style.overflow = '';
+});
+
+// Close modal when clicking outside
+settingsModal.addEventListener('click', (e) => {
+    if (e.target === settingsModal) {
+        settingsModal.classList.remove('open');
+        document.body.style.overflow = '';
+    }
+});
+
+// Weather toggle
+weatherToggle.addEventListener('change', () => {
+    const weather = document.getElementById('weather');
+    weather.style.display = weatherToggle.checked ? 'block' : 'none';
+    localStorage.setItem('weatherToggle', weatherToggle.checked);
+});
+
+// Font selection
+fontSelect.addEventListener('change', () => {
+    const selectedFont = fontSelect.value;
+    loadGoogleFont(selectedFont);
+    localStorage.setItem('selectedFont', selectedFont);
+});
+
+// Load Google Font
+function loadGoogleFont(fontName) {
+    const link = document.createElement('link');
+    link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@400;600;700&display=swap`;
+    link.rel = 'stylesheet';
+
+    // Remove existing font link
+    const existingLink = document.querySelector('link[href*="fonts.googleapis.com"]');
+    if (existingLink) {
+        existingLink.remove();
+    }
+
+    document.head.appendChild(link);
+
+    // Apply font to body
+    document.body.style.fontFamily = `'${fontName}', sans-serif`;
+}
+
+// Initialize Lucide icons for settings
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
 
 // Helper to map weather codes to emoji
 function getWeatherEmoji(code) {
