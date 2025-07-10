@@ -196,8 +196,8 @@
         }
 
         .bookmark:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
+            transform: scale(1.02);
+            filter: brightness(1.05);
         }
 
         .bookmark-add {
@@ -218,7 +218,7 @@
         .bookmark-add:hover {
             border-color: #fff;
             color: #fff;
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
 
         .bookmark img {
@@ -240,9 +240,8 @@
         }
 
         .bookmark:hover .bookmark-icon {
-            transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
-            filter: brightness(1.2);
+            transform: scale(1.05);
+            filter: brightness(1.1);
         }
 
         .bookmark-name {
@@ -268,6 +267,13 @@
             align-items: center;
             gap: 12px;
             margin: 0;
+            transition: all 0.3s ease;
+            transform: scale(1);
+        }
+
+        #weather.bookmark:hover {
+            transform: scale(1.02);
+            filter: brightness(1.05);
         }
 
         /* Hide weather addon on viewports narrower than 1000px */
