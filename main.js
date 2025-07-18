@@ -1,3 +1,47 @@
+'use strict';
+/* === Shared helpers / constants (optimization pass) === */
+const MAX_BOOKMARKS = 12;
+
+/** Safe JSON parse for bookmarks */
+function loadBookmarks() {
+    try {
+        const raw = localStorage.getItem('customBookmarks');
+        if (!raw) return [];
+        const data = JSON.parse(raw);
+        return Array.isArray(data) ? data : [];
+    } catch (e) {
+        console.warn('Bookmark parse failed, resetting.', e);
+        return [];
+    }
+}
+
+function saveBookmarks(list) {
+    try {
+        localStorage.setItem('customBookmarks', JSON.stringify(list.slice(0, MAX_BOOKMARKS)));
+    } catch (e) {
+        console.warn('Bookmark save failed:', e);
+    }
+}
+
+/** Debounced icon refresh to avoid spamming icon libraries */
+let _iconRefreshTimer = null;
+function refreshIcons() {
+    if (_iconRefreshTimer) return;
+    _iconRefreshTimer = requestAnimationFrame(() => {
+        _iconRefreshTimer = null;
+        try {
+            if (window.lucide && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+            if (window.feather && typeof feather.replace === 'function') {
+                feather.replace();
+            }
+        } catch (e) {
+            console.warn('Icon init failed:', e);
+        }
+    });
+}
+
 function updateGreeting() {
     // Load saved name or default to Tokyo
     const userName = localStorage.getItem('username') || 'Tokyo';
@@ -170,13 +214,16 @@ function addBookmarkPrompt() {
         name,
         icon: `${new URL(url).origin}/favicon.ico`
     });
-    localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
+    if (bookmarks.length > MAX_BOOKMARKS) {
+        bookmarks = bookmarks.slice(0, MAX_BOOKMARKS);
+    }
+    saveBookmarks(bookmarks);
     renderBookmarks();
 }
 
 // Bookmarks (editable)
 // Load or seed bookmarks
-let bookmarks = JSON.parse(localStorage.getItem('customBookmarks') || "[]");
+let bookmarks = loadBookmarks();
 if (bookmarks.length === 0) {
     bookmarks = [
         { name: "YouTube Music", url: "https://music.youtube.com/", icon: "https://music.youtube.com/favicon.ico" },
@@ -184,31 +231,16 @@ if (bookmarks.length === 0) {
         { name: "GitHub", url: "https://github.com", icon: "https://github.githubassets.com/favicons/favicon.png" },
         { name: "Twitter", url: "https://twitter.com", icon: "https://abs.twimg.com/favicons/twitter.ico" }
     ];
-    localStorage.setItem('customBookmarks', JSON.stringify(bookmarks));
-}
-
-async function fetchTitle(url) {
-    try {
-        const response = await fetch(url, { method: 'GET', mode: 'cors' });
-        const html = await response.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const title = doc.querySelector('title');
-        return title ? title.innerText.trim() : null;
-    } catch {
-        return null;
-    }
+    saveBookmarks(bookmarks);
 }
 
 async function renderBookmarks() {
     // Load current bookmarks list
-    bookmarks = JSON.parse(localStorage.getItem('customBookmarks'));
+    bookmarks = loadBookmarks();
     const container = document.getElementById('bookmarks');
     container.innerHTML = "";
 
-    // Limit to 12 bookmarks
-    const maxBookmarks = 12;
-    const displayBookmarks = bookmarks.slice(0, maxBookmarks);
+    const displayBookmarks = bookmarks;
 
     // Map common sites to Lucide/Feather/Tabler icon names (for fallback)
     const iconMap = {
@@ -260,7 +292,7 @@ async function renderBookmarks() {
         } else if (mapping && mapping.feather) {
             fallbackIconHtml = `<i data-feather="${mapping.feather}" class="bookmark-icon"></i>`;
         } else if (mapping && mapping.tabler) {
-            fallbackIconHtml = `<i class="ti ${mapping.tabler} bookmark-icon"></i>`;
+            fallbackIconHtml = `<i class="ti ti-${mapping.tabler} bookmark-icon"></i>`;
         } else {
             fallbackIconHtml = `<span class="bookmark-icon" style="display:flex;align-items:center;justify-content:center;font-size:1.5em;">★</span>`;
         }
@@ -277,12 +309,7 @@ async function renderBookmarks() {
             img.onerror = function () {
                 this.onerror = null;
                 a.innerHTML = `${fallbackIconHtml}<span class="bookmark-name">${name}</span>`;
-                try {
-                    if (window.lucide) lucide.createIcons();
-                    if (window.feather) feather.replace();
-                } catch (e) {
-                    console.warn("Fallback icon render failed:", e);
-                }
+                refreshIcons();
             };
         }
 
@@ -338,6 +365,9 @@ async function renderBookmarks() {
     addTile.setAttribute('draggable', 'false');
     addTile.addEventListener('click', () => addBookmarkPrompt());
     container.appendChild(addTile);
+
+    // Re-init icon libraries after (re)render
+    refreshIcons();
 }
 
 // Enhanced search functionality
@@ -372,25 +402,10 @@ searchInput.addEventListener('blur', () => {
 
 // Hide suggestions when clicking outside
 document.addEventListener('DOMContentLoaded', function () {
-    try {
-        if (window.lucide && typeof lucide.createIcons === 'function') {
-            lucide.createIcons();
-        }
-    } catch (e) {
-        console.warn("Lucide init failed:", e);
-    }
-
-    try {
-        if (window.feather && typeof feather.replace === 'function') {
-            feather.replace();
-        }
-    } catch (e) {
-        console.warn("Feather init failed:", e);
-    }
-
+    refreshIcons();
     renderBookmarks();
-    initializeWeather();
 });
+
 
 function showSuggestions(query) {
     const suggestions = [];
@@ -429,7 +444,7 @@ function showSuggestions(query) {
             </div>
         `).join('');
         searchSuggestions.classList.add('show');
-        lucide.createIcons();
+        refreshIcons();
     } else {
         hideSuggestions();
     }
@@ -455,170 +470,6 @@ document.getElementById('searchForm').addEventListener('submit', (e) => {
         localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
     }
 });
-
-// Helper to map weather codes to emoji
-function getWeatherEmoji(code) {
-    if (code === 0) return '☀️';
-    if (code >= 1 && code <= 3) return '🌤️';
-    if (code >= 45 && code <= 48) return '🌫️';
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 86)) return '🌧️';
-    if ((code >= 71 && code <= 77) || (code >= 85 && code <= 86)) return '🌨️';
-    if (code >= 95 && code <= 99) return '⛈️';
-    return '☁️';
-}
-
-
-// Initialize weather functionality
-function initializeWeather() {
-    console.log('Initializing weather...');
-
-    // Check if weather element exists
-    const weatherElement = document.getElementById('weather');
-    if (!weatherElement) {
-        console.error('Weather element not found in DOM!');
-        return;
-    }
-    console.log('Weather element found:', weatherElement);
-
-    // Try geolocation first, then fallback
-    if (navigator.geolocation) {
-        console.log('Geolocation available, requesting position...');
-        navigator.geolocation.getCurrentPosition(
-            async pos => {
-                console.log('Geolocation successful:', pos.coords);
-                const { latitude, longitude } = pos.coords;
-                // Reverse geocode for city/country
-                let city = 'Your Location', country = '';
-                try {
-                    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${latitude}&longitude=${longitude}&language=en`);
-                    const geoData = await geoRes.json();
-                    if (geoData.results && geoData.results.length) {
-                        city = geoData.results[0].name;
-                        country = geoData.results[0].country;
-                    }
-                } catch (error) {
-                    console.log('Reverse geocoding failed:', error);
-                }
-                fetchWeather(latitude, longitude, city, country);
-            },
-            (error) => {
-                console.log('Geolocation failed:', error);
-                const weatherElement = document.getElementById('weather');
-                if (error.code === error.PERMISSION_DENIED) {
-                    weatherElement.innerHTML = '<div>Location access denied.<br><button id="retryWeather">Retry</button></div>';
-                    document.getElementById('retryWeather').onclick = () => {
-                        initializeWeather();
-                    };
-                } else {
-                    fetchWeatherByIP();
-                }
-            }
-        );
-    } else {
-        console.log('Geolocation not available, using IP fallback');
-        fetchWeatherByIP();
-    }
-}
-
-// Add manual refresh function for debugging
-function refreshWeather() {
-    console.log('Manual weather refresh triggered');
-    initializeWeather();
-}
-
-// Make refreshWeather available globally for debugging
-window.refreshWeather = refreshWeather;
-
-// Test weather with hardcoded coordinates (Tokyo)
-function testWeather() {
-    console.log('Testing weather with Tokyo coordinates...');
-    fetchWeather(35.6762, 139.6503, 'Tokyo', 'Japan');
-}
-
-// Make testWeather available globally for debugging
-window.testWeather = testWeather;
-
-// Fallback to IP-based lookup
-function fetchWeatherByIP() {
-    console.log('Fetching weather by IP...');
-    fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(loc => {
-            console.log('IP location data:', loc);
-            fetchWeather(loc.latitude, loc.longitude, loc.city, loc.country_name);
-        })
-        .catch((error) => {
-            console.log('IP geolocation failed:', error);
-            // Set a fallback message
-            const w = document.getElementById('weather');
-            if (w) {
-                w.innerHTML = 'Weather unavailable';
-            }
-        });
-}
-
-// Enhanced weather with loading animation
-async function fetchWeather(latitude, longitude, city, country) {
-    console.log('Fetching weather for:', latitude, longitude, city, country);
-    const w = document.getElementById('weather');
-    if (!w) {
-        console.error('Weather element not found!');
-        return;
-    }
-
-    w.innerHTML = '<div class="weather-loading"></div> Loading weather...';
-
-    const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
-    try {
-        console.log('Fetching from weather API:', weatherUrl);
-        const response = await fetch(weatherUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Weather data received:', data);
-
-        const cw = data.current_weather;
-        const daily = data.daily;
-        const up = new Date(cw.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        let html = `
-      <div class="weather-header">
-        <div class="weather-location">${city}${country ? ', ' + country : ''}</div>
-        <div class="weather-update">update: ${up}</div>
-      
-      <div class="weather-main">
-        <div class="weather-icon">${getWeatherEmoji(cw.weathercode)}</div>
-        <div class="weather-temp-large">${cw.temperature.toFixed(1)}°C</div>
-      </div>
-      <div class="weather-forecast">`;
-        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        for (let i = 1; i <= 4; i++) {
-            const d = new Date(daily.time[i]);
-            const day = weekdays[d.getDay()];
-            const icon = getWeatherEmoji(daily.weathercode[i]);
-            const min = daily.temperature_2m_min[i].toFixed(1);
-            const max = daily.temperature_2m_max[i].toFixed(1);
-            html += `
-        <div class="forecast-day">
-          <div class="forecast-name">${day}</div>
-          <div class="forecast-icon">${icon}</div>
-          <div class="forecast-range">${min}-${max}°</div>
-        </div>`;
-        }
-        html += `</div>`;
-        w.innerHTML = html;
-        try {
-            if (window.lucide) lucide.createIcons();
-            if (window.feather) feather.replace();
-        } catch (e) {
-            console.warn("Failed to re-initialize icons after weather render", e);
-        }
-        console.log('Weather updated successfully');
-    } catch (error) {
-        console.error('Weather fetch failed:', error);
-        w.innerHTML = 'Weather unavailable';
-    }
-}
 
 // Hide weather widget if it overlaps the clock or greeting
 function checkWeatherOverlap() {
@@ -648,3 +499,106 @@ function checkWeatherOverlap() {
 
 window.addEventListener('load', checkWeatherOverlap);
 window.addEventListener('resize', checkWeatherOverlap);
+
+/* ---------- Weather Widget (Open-Meteo, no API key) ---------- */
+(function initWeather(){
+    const el = document.getElementById('weather');
+    if(!el) return;
+
+    // Show spinner if stylesheet provides the class
+    el.innerHTML = '<div class="weather-loading"></div>';
+
+    let usedFallback = false;
+
+    function mapWeatherCode(code){
+        if([0].includes(code)) return 'sun';                        // Clear
+        if([1,2].includes(code)) return 'cloud-sun';                // Mostly / partly cloudy
+        if([3,45,48].includes(code)) return 'cloud-fog';            // Overcast or fog
+        if([51,53,55,56,57].includes(code)) return 'cloud-drizzle'; // Drizzle / freezing drizzle
+        if([61,63,65].includes(code)) return 'cloud-rain';          // Rain
+        if([66,67].includes(code)) return 'cloud-rain-wind';        // Freezing rain
+        if([71,73,75,77].includes(code)) return 'cloud-snow';       // Snow
+        if([80,81,82].includes(code)) return 'cloud-rain-wind';     // Showers
+        if([85,86].includes(code)) return 'cloud-snow';             // Snow showers
+        if([95,96,99].includes(code)) return 'cloud-lightning';     // Thunderstorm
+        return 'cloud';                                            // Default
+    }
+
+    function fetchWeather(lat, lon, label){
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=3&timezone=auto`)
+            .then(r => r.json())
+            .then(data => {
+                if(!data.current || !data.daily){
+                    throw new Error('Incomplete weather data');
+                }
+                const cur = data.current;
+                const daily = data.daily;
+                const nowTime = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                const iconName = mapWeatherCode(cur.weather_code);
+
+                const daysHtml = daily.time.slice(0,3).map((dateStr, i) => {
+                    const d = new Date(dateStr + 'T00:00:00');
+                    const dayName = d.toLocaleDateString(undefined, { weekday: 'short' });
+                    const hi = Math.round(daily.temperature_2m_max[i]);
+                    const lo = Math.round(daily.temperature_2m_min[i]);
+                    const dIcon = mapWeatherCode(daily.weather_code[i]);
+                    return `
+                        <div class="forecast-day">
+                            <div class="forecast-name">${dayName}</div>
+                            <i data-lucide="${dIcon}" class="forecast-icon"></i>
+                            <div class="forecast-range">${lo}° / ${hi}°</div>
+                        </div>
+                    `;
+                }).join('');
+
+                el.innerHTML = `
+                    <div class="weather-header">
+                        <div class="weather-location">${label || (usedFallback ? 'Tel Aviv' : 'Local')}</div>
+                        <div class="weather-update">${nowTime}</div>
+                    </div>
+                    <div class="weather-main">
+                        <i data-lucide="${iconName}" class="weather-icon"></i>
+                        <div class="weather-temp-large">${Math.round(cur.temperature_2m)}°C</div>
+                        <div class="weather-wind">Wind ${Math.round(cur.wind_speed_10m)} km/h</div>
+                    </div>
+                    <div class="weather-forecast">
+                        ${daysHtml}
+                    </div>
+                `;
+
+                refreshIcons();
+            })
+            .catch(err => {
+                console.error('Weather error:', err);
+                el.innerHTML = '<div style="text-align:center;font-size:0.75rem;opacity:0.7;">Weather unavailable</div>';
+            });
+    }
+
+    function geoSuccess(pos){
+        const { latitude, longitude } = pos.coords;
+        fetchWeather(latitude, longitude, 'Local');
+    }
+
+    function geoError(){
+        usedFallback = true;
+        fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Tel Aviv fallback
+    }
+
+    if(navigator.geolocation){
+        let resolved = false;
+        const failTimer = setTimeout(()=>{
+            if(!resolved){
+                resolved = true;
+                geoError();
+            }
+        }, 8000);
+
+        navigator.geolocation.getCurrentPosition(
+            pos => { if(!resolved){ resolved = true; clearTimeout(failTimer); geoSuccess(pos);} },
+            () => { if(!resolved){ resolved = true; clearTimeout(failTimer); geoError(); } },
+            { enableHighAccuracy:false, timeout:7000, maximumAge: 600000 }
+        );
+    } else {
+        geoError();
+    }
+})();

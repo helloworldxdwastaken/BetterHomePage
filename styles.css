@@ -1,7 +1,13 @@
+/* Dark-only mode enforced; removed light theme media query */
+
 /* Styles moved from index.html */
 :root {
     --bg-color: #1e1e1e;
     --fg-color: #ffffff;
+}
+
+html {
+    color-scheme: dark;
 }
 
 body {
@@ -198,12 +204,27 @@ h1 {
 }
 
 input {
-    padding: 10px;
-    border-radius: 20px;
+    padding: 10px 16px;
+    border-radius: 24px;
     border: none;
     font-size: 1rem;
-    width: 400px;
-    /* fixed length */
+    width: 400px; /* fixed length */
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    transition: background 0.25s ease, box-shadow 0.25s ease, outline-color 0.25s ease;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+input:focus {
+    outline: 2px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.22);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
 }
 
 .bookmarks {
@@ -380,16 +401,6 @@ input {
     }
 }
 
-@media (prefers-color-scheme: light) {
-    :root {
-        --bg-color: #fafafa;
-        --fg-color: #111111;
-    }
-
-    body::before {
-        background: rgba(255, 255, 255, 0.35);
-    }
-}
 
 /* Tools pane positioning and weather widget style */
 .tools {
@@ -486,21 +497,6 @@ input {
 
 .forecast-range {}
 
-@media (max-width: 600px) {
-    .tools {
-        position: static;
-        width: 90%;
-        margin: 20px auto 0;
-    }
-}
-
-@media (max-width: 600px) {
-    #weather.bookmark {
-        display: none;
-        position: static;
-        margin: 20px auto;
-    }
-}
 
 .bookmark-row {
     display: flex;
