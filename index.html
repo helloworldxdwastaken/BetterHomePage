@@ -1506,12 +1506,41 @@
 
         // Unsplash wallpaper for online mode
         function pickUnsplashWallpaper() {
-            // Try multiple Unsplash endpoints for better reliability
+            // Large collection of different Unsplash endpoints and categories
             const unsplashUrls = [
+                // Nature & Landscapes
                 'https://source.unsplash.com/1920x1080/?nature,landscape',
+                'https://source.unsplash.com/1920x1080/?mountains,nature',
+                'https://source.unsplash.com/1920x1080/?forest,trees',
+                'https://source.unsplash.com/1920x1080/?ocean,water',
+                'https://source.unsplash.com/1920x1080/?sky,clouds',
+                'https://source.unsplash.com/1920x1080/?sunset,sunrise',
+                'https://source.unsplash.com/1920x1080/?beach,tropical',
+                'https://source.unsplash.com/1920x1080/?desert,sand',
+                
+                // Abstract & Minimal
                 'https://source.unsplash.com/1920x1080/?abstract,minimal',
-                'https://source.unsplash.com/1920x1080/?dark,wallpaper',
-                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop'
+                'https://source.unsplash.com/1920x1080/?gradient,colorful',
+                'https://source.unsplash.com/1920x1080/?geometric,pattern',
+                'https://source.unsplash.com/1920x1080/?texture,material',
+                'https://source.unsplash.com/1920x1080/?dark,minimal',
+                'https://source.unsplash.com/1920x1080/?light,bright',
+                
+                // Urban & Architecture
+                'https://source.unsplash.com/1920x1080/?city,urban',
+                'https://source.unsplash.com/1920x1080/?architecture,building',
+                'https://source.unsplash.com/1920x1080/?street,night',
+                'https://source.unsplash.com/1920x1080/?modern,design',
+                
+                // Space & Science
+                'https://source.unsplash.com/1920x1080/?space,galaxy',
+                'https://source.unsplash.com/1920x1080/?stars,night',
+                'https://source.unsplash.com/1920x1080/?nebula,cosmos',
+                
+                // Technology
+                'https://source.unsplash.com/1920x1080/?technology,digital',
+                'https://source.unsplash.com/1920x1080/?computer,tech',
+                'https://source.unsplash.com/1920x1080/?code,programming'
             ];
             
             // Add random parameter to avoid caching
@@ -1521,7 +1550,7 @@
             const img = new Image();
             img.onload = () => {
                 document.body.style.backgroundImage = `url('${selectedUrl}')`;
-                console.log('Unsplash wallpaper loaded successfully');
+                console.log('Unsplash wallpaper loaded successfully:', selectedUrl);
             };
             img.onerror = () => {
                 console.warn('Failed to load Unsplash wallpaper, trying alternative...');
@@ -1532,18 +1561,62 @@
         }
 
         function tryAlternativeUnsplash() {
-            // Specific high-quality Unsplash photos as backup
+            // Large collection of specific high-quality Unsplash photos as backup
             const backupUrls = [
-                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format',
-                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format',
-                'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop&auto=format'
+                // Nature & Landscapes
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format', // Mountain lake
+                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format', // Forest path
+                'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop&auto=format', // Mountain vista
+                'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1920&h=1080&fit=crop&auto=format', // Lake reflection
+                'https://images.unsplash.com/photo-1418065460487-3956c3043904?w=1920&h=1080&fit=crop&auto=format', // Forest mist
+                'https://images.unsplash.com/photo-1501436513145-30f24e19fcc4?w=1920&h=1080&fit=crop&auto=format', // Ocean waves
+                'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&h=1080&fit=crop&auto=format', // Mountain peaks
+                'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&h=1080&fit=crop&auto=format', // Golden field
+                'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&h=1080&fit=crop&auto=format', // Snowy mountains
+                'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&h=1080&fit=crop&auto=format', // Desert landscape
+                
+                // Sunsets & Sunrises
+                'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&h=1080&fit=crop&auto=format', // Beach sunset
+                'https://images.unsplash.com/photo-1464822759844-d150165c99fd?w=1920&h=1080&fit=crop&auto=format', // Mountain sunset
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format', // Lake sunrise
+                'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=1080&fit=crop&auto=format', // City sunset
+                
+                // Abstract & Minimal
+                'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=1920&h=1080&fit=crop&auto=format', // Gradient abstract
+                'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1920&h=1080&fit=crop&auto=format', // Blue abstract
+                'https://images.unsplash.com/photo-1552083375-1447ce00c827?w=1920&h=1080&fit=crop&auto=format', // Minimal landscape
+                'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop&auto=format', // Purple gradient
+                'https://images.unsplash.com/photo-1557682268-e3955ed5d83f?w=1920&h=1080&fit=crop&auto=format', // Orange gradient
+                'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop&auto=format', // Green gradient
+                
+                // Space & Cosmos
+                'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=1920&h=1080&fit=crop&auto=format', // Galaxy
+                'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&h=1080&fit=crop&auto=format', // Nebula
+                'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&h=1080&fit=crop&auto=format', // Starry night
+                'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?w=1920&h=1080&fit=crop&auto=format', // Milky way
+                
+                // Urban & Architecture
+                'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&h=1080&fit=crop&auto=format', // City skyline
+                'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=1080&fit=crop&auto=format', // Modern building
+                'https://images.unsplash.com/photo-1444927714506-8492d94b5ba0?w=1920&h=1080&fit=crop&auto=format', // Bridge
+                'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&h=1080&fit=crop&auto=format', // Night city
+                
+                // Technology & Digital
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&auto=format', // Digital pattern
+                'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1920&h=1080&fit=crop&auto=format', // Code screen
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&auto=format', // Tech abstract
+                
+                // Dark themes
+                'https://images.unsplash.com/photo-1558021212-51b6ecfa0db9?w=1920&h=1080&fit=crop&auto=format', // Dark minimal
+                'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=1920&h=1080&fit=crop&auto=format', // Dark gradient
+                'https://images.unsplash.com/photo-1420227651490-6d0954909015?w=1920&h=1080&fit=crop&auto=format'  // Dark nature
             ];
             
             const backupUrl = backupUrls[Math.floor(Math.random() * backupUrls.length)];
             const img = new Image();
             img.onload = () => {
                 document.body.style.backgroundImage = `url('${backupUrl}')`;
-                console.log('Alternative Unsplash wallpaper loaded successfully');
+                console.log('Alternative Unsplash wallpaper loaded successfully:', backupUrl);
             };
             img.onerror = () => {
                 console.warn('All Unsplash options failed, falling back to local wallpapers');
