@@ -9,49 +9,1988 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Tokyo Homepage">
+    <meta name="apple-mobile-web-app-title" content="BetterHome">
     <link rel="apple-touch-icon" href="icons/icon-192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="icons/icon-192.png">
     <!-- Icon Libraries -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     
+    <style>
+        /* Enhanced CSS with better organization and new features */
+        :root {
+            --bg-color: #0a0a0a;
+            --fg-color: #ffffff;
+            --accent-color: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --shadow-light: rgba(255, 255, 255, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            color-scheme: dark;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--fg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow-x: hidden;
+            font-weight: 400;
+        }
+
+        /* Enhanced overlay with blur effect */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
+            pointer-events: none;
+            z-index: 0;
+            transition: var(--transition);
+        }
+
+        body.search-focused::before {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(2px);
+        }
+
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced greeting */
+        #greeting {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 20px rgba(255,255,255,0.1);
+            word-break: break-word;
+            hyphens: auto;
+        }
+
+        #username {
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+            display: inline;
+            max-width: none;
+            overflow: visible;
+            text-overflow: none;
+            white-space: normal;
+            color: inherit;
+            background: inherit;
+            -webkit-background-clip: inherit;
+            -webkit-text-fill-color: inherit;
+        }
+
+        #username:hover {
+            transform: scale(1.02);
+        }
+
+        #username::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        #username:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced quote */
+        .quote {
+            font-style: italic;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+
+        /* Enhanced clock with better animations */
+        .clock {
+            font-size: clamp(4rem, 12vw, 8rem);
+            margin: 1rem 0 2rem 0;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            text-shadow: 0 4px 20px rgba(255,255,255,0.1);
+        }
+
+        .clock .digit {
+            display: inline-block;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+
+        .clock .digit.changing {
+            transform: scale(1.1) rotate(5deg);
+            opacity: 0.7;
+        }
+
+        /* Enhanced search bar with glassmorphism */
+        .search-container {
+            position: relative;
+            margin-bottom: 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 4px;
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.3),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            transition: var(--transition);
+        }
+
+        .search-bar.focused {
+            transform: scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(59, 130, 246, 0.3) inset,
+                0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        input {
+            padding: 16px 20px;
+            border: none;
+            font-size: 1rem;
+            width: 450px;
+            background: transparent;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 400;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Enhanced engine selector */
+        .engine-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .engine-select {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            z-index: 100;
+            opacity: 0;
+            transform: scale(0.9) translateY(-10px);
+            transition: var(--transition);
+        }
+
+        .engine-select.show {
+            display: flex;
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        .engine-icon {
+            height: 32px;
+            width: 32px;
+            border-radius: 8px;
+            transition: var(--transition);
+            opacity: 0.7;
+        }
+
+        .engine-icon:hover,
+        .engine-icon.active {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Search suggestions */
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition);
+            z-index: 50;
+        }
+
+        .search-suggestions.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 8px;
+            margin: 4px;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .suggestion-item .icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .suggestion-item .text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item .type {
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        /* Centered bookmarks container */
+        .bookmarks-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .bookmarks {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.5rem;
+            justify-content: center;
+            align-items: start;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .bookmark {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bookmark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .bookmark:hover::before {
+            opacity: 1;
+        }
+
+        .bookmark:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .bookmark-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .bookmark:hover .bookmark-icon {
+            transform: scale(1.1);
+        }
+
+        .bookmark-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.9;
+            line-height: 1.3;
+        }
+
+        .bookmark-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 2rem;
+            cursor: pointer;
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            transition: var(--transition);
+            background: transparent;
+            backdrop-filter: none;
+        }
+
+        .bookmark-add:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: scale(1.02);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* All widgets on the right side */
+        .widgets-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 10;
+        }
+
+        .widget-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            transition: var(--transition);
+            min-width: 200px;
+        }
+
+        .widget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Weather widget styles */
+        #weather {
+            padding: 0;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            width: auto;
+        }
+
+        /* Productivity panel styles */
+        .productivity-panel {
+            position: static !important;
+            width: auto !important;
+            transform: none !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+        }
+
+        .panel-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+        }
+
+        .weather-location {
+            font-weight: 600;
+        }
+
+        .weather-update {
+            opacity: 0.6;
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .weather-icon {
+            font-size: 2rem;
+        }
+
+        .weather-temp-large {
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .weather-wind {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .weather-forecast {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .forecast-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            flex: 1;
+        }
+
+        .forecast-icon {
+            font-size: 1.2rem;
+            margin: 4px 0;
+        }
+
+        /* Productivity Panel */
+        .productivity-panel {
+            position: static !important;
+            width: auto !important;
+            transform: none !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+        }
+
+        .panel-section {
+            margin-bottom: 20px;
+        }
+
+        .panel-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .quick-note {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 8px;
+            width: 100%;
+            color: #fff;
+            font-size: 0.8rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .quick-note:focus {
+            outline: 1px solid var(--accent-color);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .pomodoro-timer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            font-family: 'Monaco', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            color: #fff;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .timer-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .timer-btn.active {
+            background: var(--accent-color);
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .widgets-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .widgets-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .search-container {
+                width: 100%;
+                padding: 0 20px;
+            }
+
+            input {
+                width: 100%;
+                max-width: none;
+            }
+
+            .bookmarks {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+                padding: 0 10px;
+            }
+
+            .bookmark {
+                padding: 0.8rem;
+            }
+
+            .bookmark-icon {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bookmarks {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.8rem;
+            }
+
+            .bookmark {
+                padding: 0.6rem;
+            }
+
+            .bookmark-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .bookmark-name {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Loading animations */
+        @keyframes shimmer {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        /* Smooth page transitions */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Settings styles */
+        .settings-btn-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .settings-btn-float:hover {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.15);
+        }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .settings-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.9) translateY(20px);
+            transition: var(--transition);
+        }
+
+        .settings-overlay.show .settings-panel {
+            transform: scale(1) translateY(0);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .settings-close:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .settings-content {
+            padding: 24px;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 16px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .setting-item {
+            margin-bottom: 16px;
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .setting-select:focus {
+            outline: 1px solid var(--accent-color);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .setting-toggle {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            margin-bottom: 0 !important;
+        }
+
+        .setting-toggle input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 48px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: var(--transition);
+        }
+
+        .setting-toggle input:checked + .toggle-slider {
+            background: var(--accent-color);
+        }
+
+        .setting-toggle input:checked + .toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .setting-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .setting-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .setting-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .setting-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Widget visibility classes */
+        .widget-hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 
-<body>
-    <!-- Sidebar removed -->
-    <aside class="tools">
-        <div id="weather" class="bookmark">Loading weather...</div>
-    </aside>
-    <!-- Footer bar removed -->
-    <h1 id="greeting">Loading greeting...</h1>
-    <div class="quote" id="quote">"Loading quote..."</div>
-    <div class="clock" id="clock">Loading time...</div>
-
-
-    <div class="search-bar">
-        <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
-            <input type="text" name="q" id="searchInput" placeholder="Search…" autocomplete="off" />
-            <div class="search-suggestions" id="searchSuggestions"></div>
-        </form>
-        <div class="engine-wrapper">
-            <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
-            <div class="engine-select" id="engineSelect">
-                <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
-                <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
-                <img src="https://brave.com/static-assets/images/brave-favicon.png" data-action="brave"
-                    class="engine-icon">
+<body class="page-transition">
+    <!-- All Widgets Panel on Right Side -->
+    <div class="widgets-panel" id="widgetsPanel">
+        <!-- Weather Widget -->
+        <div class="widget-card" id="weatherCard">
+            <div id="weather" class="loading">Loading weather...</div>
+        </div>
+        
+        <!-- Productivity Panel -->
+        <div class="widget-card" id="productivityCard">
+            <div class="productivity-panel" id="productivityPanel">
+                <div class="panel-section">
+                    <div class="panel-title">Quick Note</div>
+                    <textarea class="quick-note" id="quickNote" placeholder="Jot down thoughts..."></textarea>
+                </div>
+                
+                <div class="panel-section">
+                    <div class="panel-title">Focus Timer</div>
+                    <div class="pomodoro-timer">
+                        <div class="timer-display" id="timerDisplay">25:00</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn" id="startTimer">Start</button>
+                            <button class="timer-btn" id="resetTimer">Reset</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="bookmarks" id="bookmarks"></div>
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <button class="settings-close" id="settingsClose">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    
+                    <div class="setting-item">
+                        <label for="fontSelect">Font Family</label>
+                        <select id="fontSelect" class="setting-select">
+                            <option value="Inter">Inter (Default)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Fira Sans">Fira Sans</option>
+                        </select>
+                    </div>
+                </div>
 
-    <!-- All logic moved to main.js -->
-    <script src="main.js"></script>
+                <div class="settings-section">
+                    <h3>Widgets</h3>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="weatherToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Weather Widget</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="productivityToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Productivity Panel</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="quoteToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Daily Quote</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Data</h3>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn danger" id="clearDataBtn">
+                            <i data-lucide="trash-2"></i>
+                            Clear All Data
+                        </button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="exportDataBtn">
+                            <i data-lucide="download"></i>
+                            Export Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn-float" id="settingsBtn" title="Settings">
+        <i data-lucide="settings"></i>
+    </button>
+
+    <h1 id="greeting" class="loading">Loading greeting...</h1>
+    <div class="quote" id="quote">"Loading quote..."</div>
+    <div class="clock" id="clock">Loading time...</div>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
+                <input type="text" name="q" id="searchInput" placeholder="Search with Google" autocomplete="off" />
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </form>
+            <div class="engine-wrapper">
+                <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
+                <div class="engine-select" id="engineSelect">
+                    <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
+                    <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
+                    <img src="https://brave.com/static-assets/images/brave-favicon.png" data-action="brave" class="engine-icon">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bookmarks-container">
+        <div class="bookmarks" id="bookmarks"></div>
+    </div>
+
+    <script>
+        'use strict';
+        
+        // Enhanced constants and helpers
+        const MAX_BOOKMARKS = 12;
+        const STORAGE_KEYS = {
+            bookmarks: 'customBookmarks',
+            username: 'username',
+            wallpaperIndex: 'wallpaperIndex',
+            searchHistory: 'searchHistory',
+            quickNote: 'quickNote',
+            timerState: 'timerState',
+            settings: 'betterHomeSettings'
+        };
+
+        // Default settings
+        const DEFAULT_SETTINGS = {
+            fontFamily: 'Inter',
+            weatherEnabled: true,
+            productivityEnabled: true,
+            quoteEnabled: true
+        };
+
+        // Load settings
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEYS.settings);
+                return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+            } catch (e) {
+                return DEFAULT_SETTINGS;
+            }
+        }
+
+        function saveSettings(settings) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+            } catch (e) {
+                console.warn('Settings save failed:', e);
+            }
+        }
+
+        // Apply settings to page
+        function applySettings(settings) {
+            // Apply font family
+            document.documentElement.style.setProperty('--font-family', `"${settings.fontFamily}"`);
+            
+            // Toggle widgets
+            const weatherCard = document.getElementById('weatherCard');
+            const productivityCard = document.getElementById('productivityCard');
+            const quoteEl = document.getElementById('quote');
+            
+            if (weatherCard) {
+                weatherCard.classList.toggle('widget-hidden', !settings.weatherEnabled);
+            }
+            if (productivityCard) {
+                productivityCard.classList.toggle('widget-hidden', !settings.productivityEnabled);
+            }
+            if (quoteEl) {
+                quoteEl.classList.toggle('widget-hidden', !settings.quoteEnabled);
+            }
+        }
+
+        // Initialize settings panel
+        function initSettings() {
+            const settings = loadSettings();
+            applySettings(settings);
+            
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsOverlay = document.getElementById('settingsOverlay');
+            const settingsClose = document.getElementById('settingsClose');
+            const fontSelect = document.getElementById('fontSelect');
+            const weatherToggle = document.getElementById('weatherToggle');
+            const productivityToggle = document.getElementById('productivityToggle');
+            const quoteToggle = document.getElementById('quoteToggle');
+            const clearDataBtn = document.getElementById('clearDataBtn');
+            const exportDataBtn = document.getElementById('exportDataBtn');
+
+            // Set current values
+            if (fontSelect) fontSelect.value = settings.fontFamily;
+            if (weatherToggle) weatherToggle.checked = settings.weatherEnabled;
+            if (productivityToggle) productivityToggle.checked = settings.productivityEnabled;
+            if (quoteToggle) quoteToggle.checked = settings.quoteEnabled;
+
+            // Open settings
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', () => {
+                    settingsOverlay.classList.add('show');
+                    refreshIcons();
+                });
+            }
+
+            // Close settings
+            function closeSettings() {
+                settingsOverlay.classList.remove('show');
+            }
+
+            if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+            if (settingsOverlay) {
+                settingsOverlay.addEventListener('click', (e) => {
+                    if (e.target === settingsOverlay) closeSettings();
+                });
+            }
+
+            // Font change
+            if (fontSelect) {
+                fontSelect.addEventListener('change', () => {
+                    const newSettings = { ...settings, fontFamily: fontSelect.value };
+                    saveSettings(newSettings);
+                    applySettings(newSettings);
+                });
+            }
+
+            // Widget toggles
+            if (weatherToggle) {
+                weatherToggle.addEventListener('change', () => {
+                    const newSettings = { ...loadSettings(), weatherEnabled: weatherToggle.checked };
+                    saveSettings(newSettings);
+                    applySettings(newSettings);
+                });
+            }
+
+            if (productivityToggle) {
+                productivityToggle.addEventListener('change', () => {
+                    const newSettings = { ...loadSettings(), productivityEnabled: productivityToggle.checked };
+                    saveSettings(newSettings);
+                    applySettings(newSettings);
+                });
+            }
+
+            if (quoteToggle) {
+                quoteToggle.addEventListener('change', () => {
+                    const newSettings = { ...loadSettings(), quoteEnabled: quoteToggle.checked };
+                    saveSettings(newSettings);
+                    applySettings(newSettings);
+                });
+            }
+
+            // Clear data
+            if (clearDataBtn) {
+                clearDataBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                        Object.values(STORAGE_KEYS).forEach(key => {
+                            localStorage.removeItem(key);
+                        });
+                        location.reload();
+                    }
+                });
+            }
+
+            // Export data
+            if (exportDataBtn) {
+                exportDataBtn.addEventListener('click', () => {
+                    const data = {};
+                    Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
+                        const value = localStorage.getItem(key);
+                        if (value) data[name] = value;
+                    });
+                    
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'betterhome-settings.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+
+            // ESC key to close settings
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && settingsOverlay.classList.contains('show')) {
+                    closeSettings();
+                }
+            });
+        }
+
+        // Page transition
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+        });
+
+        // Enhanced bookmark management
+        function loadBookmarks() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.bookmarks);
+                if (!raw) return getDefaultBookmarks();
+                const data = JSON.parse(raw);
+                return Array.isArray(data) ? data : getDefaultBookmarks();
+            } catch (e) {
+                console.warn('Bookmark parse failed, using defaults.', e);
+                return getDefaultBookmarks();
+            }
+        }
+
+        function getDefaultBookmarks() {
+            return [
+                { name: "YouTube", url: "https://youtube.com", icon: "https://youtube.com/favicon.ico" },
+                { name: "GitHub", url: "https://github.com", icon: "https://github.com/favicon.ico" },
+                { name: "Reddit", url: "https://reddit.com", icon: "https://reddit.com/favicon.ico" },
+                { name: "Twitter", url: "https://twitter.com", icon: "https://twitter.com/favicon.ico" },
+                { name: "Gmail", url: "https://mail.google.com", icon: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" },
+                { name: "Netflix", url: "https://netflix.com", icon: "https://netflix.com/favicon.ico" }
+            ];
+        }
+
+        function saveBookmarks(list) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.bookmarks, JSON.stringify(list.slice(0, MAX_BOOKMARKS)));
+            } catch (e) {
+                console.warn('Bookmark save failed:', e);
+            }
+        }
+
+        // Enhanced icon refresh with error handling
+        let iconRefreshTimer = null;
+        function refreshIcons() {
+            if (iconRefreshTimer) return;
+            iconRefreshTimer = requestAnimationFrame(() => {
+                iconRefreshTimer = null;
+                try {
+                    if (window.lucide && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                } catch (e) {
+                    console.warn('Icon refresh failed:', e);
+                }
+            });
+        }
+
+        // Enhanced greeting with smooth transitions
+        function updateGreeting() {
+            const userName = localStorage.getItem(STORAGE_KEYS.username) || 'Friend';
+            const hour = new Date().getHours();
+            let greeting = "Hello";
+            let iconHtml = '<i data-lucide="hand-wave" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+
+            if (hour >= 5 && hour < 12) {
+                greeting = "Good Morning";
+                iconHtml = '<i data-lucide="sunrise" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else if (hour >= 12 && hour < 17) {
+                greeting = "Good Afternoon";
+                iconHtml = '<i data-lucide="sun" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else if (hour >= 17 && hour < 22) {
+                greeting = "Good Evening";
+                iconHtml = '<i data-lucide="sunset" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else {
+                greeting = "Good Night";
+                iconHtml = '<i data-lucide="moon" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            }
+
+            const greetingEl = document.getElementById("greeting");
+            // Create the greeting with Lucide icon instead of emoji
+            greetingEl.innerHTML = `${greeting}, <span id="username"></span>${iconHtml}`;
+            
+            // Set the username text separately to avoid any rendering issues
+            const usernameEl = greetingEl.querySelector('#username');
+            if (usernameEl) {
+                usernameEl.textContent = userName;
+            }
+            
+            greetingEl.classList.remove('loading');
+
+            // Refresh icons to make sure Lucide renders the new icon
+            refreshIcons();
+
+            // Enhanced username interaction
+            const nameSpan = document.getElementById("username");
+            if (nameSpan) {
+                nameSpan.addEventListener("click", () => {
+                    const newName = prompt("What should I call you?", userName);
+                    if (newName && newName.trim()) {
+                        localStorage.setItem(STORAGE_KEYS.username, newName.trim());
+                        updateGreeting();
+                    }
+                });
+            }
+        }
+
+        // Enhanced wallpaper system
+        const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+
+        function pickLocalWallpaper() {
+            let idx = Number(localStorage.getItem(STORAGE_KEYS.wallpaperIndex) || 0);
+            const img = new Image();
+            img.onload = () => {
+                document.body.style.backgroundImage = `url('${localWallpapers[idx]}')`;
+                localStorage.setItem(STORAGE_KEYS.wallpaperIndex, (idx + 1) % localWallpapers.length);
+            };
+            img.onerror = () => {
+                console.warn(`Failed to load wallpaper: ${localWallpapers[idx]}`);
+                // Try next wallpaper or use fallback
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            };
+            img.src = localWallpapers[idx];
+        }
+
+        // Enhanced clock with smooth animations
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours() % 12 || 12;
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+            const seconds = now.getSeconds();
+
+            const clockElement = document.getElementById('clock');
+            const newTime = `${hours}:${minutes} ${ampm}`;
+
+            if (clockElement.textContent !== newTime) {
+                clockElement.innerHTML = newTime.split('').map(char =>
+                    `<span class="digit">${char}</span>`
+                ).join('');
+                clockElement.classList.remove('loading');
+            }
+
+            // Add subtle pulse effect on the minute
+            if (seconds === 0) {
+                clockElement.querySelectorAll('.digit').forEach(digit => {
+                    digit.classList.add('changing');
+                    setTimeout(() => digit.classList.remove('changing'), 500);
+                });
+            }
+        }
+
+        // Enhanced quotes with categories
+        const quotes = [
+            "The best time to plant a tree was 20 years ago. The second best time is now.",
+            "Your limitation—it's only your imagination.",
+            "Push yourself, because no one else is going to do it for you.",
+            "Great things never come from comfort zones.",
+            "Dream it. Wish it. Do it.",
+            "Success doesn't just find you. You have to go out and get it.",
+            "The harder you work for something, the greater you'll feel when you achieve it.",
+            "Don't stop when you're tired. Stop when you're done.",
+            "Wake up with determination. Go to bed with satisfaction.",
+            "Do something today that your future self will thank you for.",
+            "Little things make big days.",
+            "It's going to be hard, but hard does not mean impossible.",
+            "Don't wait for opportunity. Create it.",
+            "Sometimes we're tested not to show our weaknesses, but to discover our strengths.",
+            "The key to success is to focus on goals, not obstacles.",
+            "Dream bigger. Do bigger.",
+            "Don't be afraid to give up the good to go for the great.",
+            "The difference between ordinary and extraordinary is that little extra.",
+            "Challenges are what make life interesting and overcoming them is what makes life meaningful.",
+            "If you want to achieve excellence, you can get there today. As of this second, quit doing less-than-excellent work."
+        ];
+
+        function displayQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            const quoteEl = document.getElementById('quote');
+            quoteEl.textContent = `"${quote}"`;
+            quoteEl.classList.remove('loading');
+        }
+
+        // Enhanced search functionality
+        const engines = {
+            google: { action: 'https://www.google.com/search', icon: 'https://www.google.com/favicon.ico', name: 'Google' },
+            duckduckgo: { action: 'https://duckduckgo.com/', icon: 'https://duckduckgo.com/favicon.ico', name: 'DuckDuckGo' },
+            brave: { action: 'https://search.brave.com/search', icon: 'https://brave.com/static-assets/images/brave-favicon.png', name: 'Brave' }
+        };
+
+        function initializeSearchEngine() {
+            const currentIcon = document.getElementById('currentEngineIcon');
+            const engineSelect = document.getElementById('engineSelect');
+            const form = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchInput');
+
+            // Engine switcher
+            currentIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                engineSelect.classList.toggle('show');
+            });
+
+            // Close engine selector when clicking outside
+            document.addEventListener('click', () => {
+                engineSelect.classList.remove('show');
+            });
+
+            engineSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            engineSelect.querySelectorAll('.engine-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const engineKey = icon.dataset.action;
+                    const engine = engines[engineKey];
+                    
+                    form.action = engine.action;
+                    currentIcon.src = engine.icon;
+                    searchInput.placeholder = `Search with ${engine.name}`;
+                    
+                    engineSelect.classList.remove('show');
+                });
+            });
+
+            // Set initial placeholder
+            searchInput.placeholder = "Search with Google";
+
+            // Search focus effects
+            searchInput.addEventListener('focus', () => {
+                document.body.classList.add('search-focused');
+                document.querySelector('.search-bar').classList.add('focused');
+                if (searchInput.value.trim()) {
+                    showSuggestions(searchInput.value.trim());
+                }
+            });
+
+            searchInput.addEventListener('blur', (e) => {
+                // Delay to allow suggestion clicks
+                setTimeout(() => {
+                    document.body.classList.remove('search-focused');
+                    document.querySelector('.search-bar').classList.remove('focused');
+                    hideSuggestions();
+                }, 150);
+            });
+
+            // Search suggestions
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                if (query.length > 1) {
+                    showSuggestions(query);
+                } else {
+                    hideSuggestions();
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', (e) => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    saveToSearchHistory(query);
+                }
+            });
+        }
+
+        // Search suggestions and history
+        let searchHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.searchHistory) || '[]');
+
+        function saveToSearchHistory(query) {
+            if (!searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                searchHistory = searchHistory.slice(0, 10);
+                localStorage.setItem(STORAGE_KEYS.searchHistory, JSON.stringify(searchHistory));
+            }
+        }
+
+        function showSuggestions(query) {
+            const suggestions = [];
+            const suggestionsEl = document.getElementById('searchSuggestions');
+
+            // Add relevant search history
+            searchHistory
+                .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 3)
+                .forEach(item => {
+                    suggestions.push({
+                        text: item,
+                        type: 'History',
+                        icon: 'clock'
+                    });
+                });
+
+            // Add common searches
+            const commonSearches = [
+                { text: 'weather forecast', icon: 'cloud' },
+                { text: 'news today', icon: 'newspaper' },
+                { text: 'translate', icon: 'languages' },
+                { text: 'calculator', icon: 'calculator' },
+                { text: 'maps', icon: 'map' }
+            ].filter(item => 
+                item.text.toLowerCase().includes(query.toLowerCase()) &&
+                !suggestions.some(s => s.text === item.text)
+            );
+
+            suggestions.push(...commonSearches.slice(0, 3));
+
+            if (suggestions.length > 0) {
+                suggestionsEl.innerHTML = suggestions.map(suggestion => `
+                    <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text.replace(/'/g, "\\'")}')">
+                        <i data-lucide="${suggestion.icon}" class="icon"></i>
+                        <div class="text">${suggestion.text}</div>
+                        <div class="type">${suggestion.type || 'Suggestion'}</div>
+                    </div>
+                `).join('');
+                suggestionsEl.classList.add('show');
+                refreshIcons();
+            } else {
+                hideSuggestions();
+            }
+        }
+
+        function hideSuggestions() {
+            const suggestionsEl = document.getElementById('searchSuggestions');
+            suggestionsEl.classList.remove('show');
+            setTimeout(() => {
+                suggestionsEl.innerHTML = '';
+            }, 300);
+        }
+
+        function selectSuggestion(text) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = text;
+            searchInput.form.submit();
+        }
+
+        // Enhanced bookmark rendering with better icon handling
+        let bookmarks = loadBookmarks();
+
+        function addBookmarkPrompt() {
+            const input = prompt("Enter website URL (e.g., facebook.com):", "");
+            if (!input) return;
+            
+            const url = input.startsWith("http://") || input.startsWith("https://") 
+                ? input 
+                : `https://${input}`;
+
+            let hostname;
+            try {
+                hostname = new URL(url).hostname.replace("www.", "");
+            } catch {
+                alert("Please enter a valid URL");
+                return;
+            }
+
+            const name = prompt("Enter display name (optional):", "") || 
+                       hostname.charAt(0).toUpperCase() + hostname.slice(1);
+
+            const newBookmark = {
+                url,
+                name,
+                icon: `${new URL(url).origin}/favicon.ico`
+            };
+
+            bookmarks.push(newBookmark);
+            if (bookmarks.length > MAX_BOOKMARKS) {
+                bookmarks = bookmarks.slice(0, MAX_BOOKMARKS);
+            }
+            
+            saveBookmarks(bookmarks);
+            renderBookmarks();
+        }
+
+        async function renderBookmarks() {
+            bookmarks = loadBookmarks();
+            const container = document.getElementById('bookmarks');
+            container.innerHTML = "";
+
+            // Icon mapping for fallbacks
+            const iconMap = {
+                'github.com': 'github',
+                'mail.google.com': 'mail',
+                'youtube.com': 'youtube',
+                'reddit.com': 'message-square',
+                'twitter.com': 'twitter',
+                'facebook.com': 'facebook',
+                'instagram.com': 'instagram',
+                'linkedin.com': 'linkedin',
+                'netflix.com': 'play',
+                'spotify.com': 'music',
+                'discord.com': 'message-circle',
+                'twitch.tv': 'tv',
+                'amazon.com': 'shopping-cart',
+                'drive.google.com': 'folder'
+            };
+
+            for (let i = 0; i < Math.min(bookmarks.length, MAX_BOOKMARKS); i++) {
+                const bookmark = bookmarks[i];
+                const url = new URL(bookmark.url);
+                const hostname = url.hostname.replace('www.', '');
+                
+                const bookmarkEl = document.createElement('a');
+                bookmarkEl.href = bookmark.url;
+                bookmarkEl.className = 'bookmark';
+                bookmarkEl.target = '_self';
+                
+                // Create icon element
+                const iconEl = document.createElement('img');
+                iconEl.className = 'bookmark-icon';
+                iconEl.alt = bookmark.name;
+                iconEl.src = bookmark.icon;
+                
+                // Fallback to lucide icon if favicon fails
+                iconEl.onerror = function() {
+                    this.onerror = null;
+                    const fallbackIcon = iconMap[hostname] || 'globe';
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'bookmark-icon';
+                    iconContainer.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(255,255,255,0.1);
+                    `;
+                    iconContainer.innerHTML = `<i data-lucide="${fallbackIcon}" style="width: 24px; height: 24px;"></i>`;
+                    this.parentNode.replaceChild(iconContainer, this);
+                    refreshIcons();
+                };
+
+                const nameEl = document.createElement('span');
+                nameEl.className = 'bookmark-name';
+                nameEl.textContent = bookmark.name;
+
+                bookmarkEl.appendChild(iconEl);
+                bookmarkEl.appendChild(nameEl);
+
+                // Enhanced interactions
+                bookmarkEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = bookmark.url;
+                });
+
+                bookmarkEl.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const action = confirm(`Edit "${bookmark.name}"?\nOK = Edit, Cancel = Delete`);
+                    
+                    if (action) {
+                        // Edit
+                        const newUrl = prompt("Edit URL:", bookmark.url);
+                        const newName = prompt("Edit Name:", bookmark.name);
+                        
+                        if (newUrl && newName !== null) {
+                            try {
+                                const updatedUrl = newUrl.startsWith("http") ? newUrl : "https://" + newUrl;
+                                bookmarks[i] = {
+                                    url: updatedUrl,
+                                    name: newName || new URL(updatedUrl).hostname.replace("www.", ""),
+                                    icon: `${new URL(updatedUrl).origin}/favicon.ico`
+                                };
+                                saveBookmarks(bookmarks);
+                                renderBookmarks();
+                            } catch {
+                                alert("Please enter a valid URL");
+                            }
+                        }
+                    } else {
+                        // Delete
+                        if (confirm(`Delete "${bookmark.name}"?`)) {
+                            bookmarks.splice(i, 1);
+                            saveBookmarks(bookmarks);
+                            renderBookmarks();
+                        }
+                    }
+                });
+
+                // Drag and drop for reordering
+                bookmarkEl.draggable = true;
+                bookmarkEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', i.toString());
+                    bookmarkEl.style.opacity = '0.5';
+                });
+
+                bookmarkEl.addEventListener('dragend', () => {
+                    bookmarkEl.style.opacity = '1';
+                });
+
+                bookmarkEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                bookmarkEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    const toIndex = i;
+                    
+                    if (fromIndex !== toIndex) {
+                        const [movedBookmark] = bookmarks.splice(fromIndex, 1);
+                        bookmarks.splice(toIndex, 0, movedBookmark);
+                        saveBookmarks(bookmarks);
+                        renderBookmarks();
+                    }
+                });
+
+                container.appendChild(bookmarkEl);
+            }
+
+            // Add bookmark button
+            if (bookmarks.length < MAX_BOOKMARKS) {
+                const addButton = document.createElement('div');
+                addButton.className = 'bookmark-add';
+                addButton.innerHTML = '+';
+                addButton.title = 'Add bookmark';
+                addButton.addEventListener('click', addBookmarkPrompt);
+                container.appendChild(addButton);
+            }
+
+            refreshIcons();
+        }
+
+        // Enhanced weather widget
+        function initWeather() {
+            const weatherEl = document.getElementById('weather');
+            if (!weatherEl) return;
+
+            weatherEl.innerHTML = '<div class="loading">Loading weather...</div>';
+
+            function mapWeatherCode(code) {
+                const weatherCodes = {
+                    0: 'sun',
+                    1: 'cloud-sun', 2: 'cloud-sun', 3: 'cloud',
+                    45: 'cloud-fog', 48: 'cloud-fog',
+                    51: 'cloud-drizzle', 53: 'cloud-drizzle', 55: 'cloud-drizzle',
+                    56: 'cloud-drizzle', 57: 'cloud-drizzle',
+                    61: 'cloud-rain', 63: 'cloud-rain', 65: 'cloud-rain',
+                    66: 'cloud-rain-wind', 67: 'cloud-rain-wind',
+                    71: 'cloud-snow', 73: 'cloud-snow', 75: 'cloud-snow', 77: 'cloud-snow',
+                    80: 'cloud-rain-wind', 81: 'cloud-rain-wind', 82: 'cloud-rain-wind',
+                    85: 'cloud-snow', 86: 'cloud-snow',
+                    95: 'cloud-lightning', 96: 'cloud-lightning', 99: 'cloud-lightning'
+                };
+                return weatherCodes[code] || 'cloud';
+            }
+
+            // Get city name from coordinates using reverse geocoding
+            function getCityName(lat, lon) {
+                return fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                    .then(response => response.json())
+                    .then(data => {
+                        return data.city || data.locality || data.principalSubdivision || 'Local';
+                    })
+                    .catch(() => 'Local');
+            }
+
+            function fetchWeather(lat, lon, locationName = 'Local') {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=3&timezone=auto`;
+                
+                // Get city name if coordinates are provided
+                const cityPromise = (lat && lon && locationName === 'Local') 
+                    ? getCityName(lat, lon) 
+                    : Promise.resolve(locationName);
+
+                Promise.all([fetch(url).then(r => r.json()), cityPromise])
+                    .then(([data, cityName]) => {
+                        if (!data.current || !data.daily) {
+                            throw new Error('Incomplete weather data');
+                        }
+
+                        const current = data.current;
+                        const daily = data.daily;
+                        const updateTime = new Date().toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        const forecastHtml = daily.time.slice(0, 3).map((dateStr, index) => {
+                            const date = new Date(dateStr + 'T00:00:00');
+                            const dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+                            const high = Math.round(daily.temperature_2m_max[index]);
+                            const low = Math.round(daily.temperature_2m_min[index]);
+                            const icon = mapWeatherCode(daily.weather_code[index]);
+                            
+                            return `
+                                <div class="forecast-day">
+                                    <div class="forecast-name">${dayName}</div>
+                                    <i data-lucide="${icon}" class="forecast-icon"></i>
+                                    <div class="forecast-range">${low}°/${high}°</div>
+                                </div>
+                            `;
+                        }).join('');
+
+                        weatherEl.innerHTML = `
+                            <div class="weather-header">
+                                <div class="weather-location">${cityName}</div>
+                                <div class="weather-update">${updateTime}</div>
+                            </div>
+                            <div class="weather-main">
+                                <i data-lucide="${mapWeatherCode(current.weather_code)}" class="weather-icon"></i>
+                                <div>
+                                    <div class="weather-temp-large">${Math.round(current.temperature_2m)}°C</div>
+                                    <div class="weather-wind">${Math.round(current.wind_speed_10m)} km/h</div>
+                                </div>
+                            </div>
+                            <div class="weather-forecast">
+                                ${forecastHtml}
+                            </div>
+                        `;
+
+                        weatherEl.classList.remove('loading');
+                        refreshIcons();
+                    })
+                    .catch(error => {
+                        console.error('Weather fetch failed:', error);
+                        weatherEl.innerHTML = `
+                            <div style="text-align: center; opacity: 0.7; font-size: 0.8rem;">
+                                Weather unavailable
+                            </div>
+                        `;
+                    });
+            }
+
+            // Get location and fetch weather
+            if (navigator.geolocation) {
+                const timeoutId = setTimeout(() => {
+                    fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+                }, 5000);
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        clearTimeout(timeoutId);
+                        fetchWeather(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            'Local'
+                        );
+                    },
+                    () => {
+                        clearTimeout(timeoutId);
+                        fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 4000,
+                        maximumAge: 600000
+                    }
+                );
+            } else {
+                fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+            }
+        }
+
+        // Productivity features
+        function initProductivityPanel() {
+            // Quick note functionality
+            const quickNote = document.getElementById('quickNote');
+            if (quickNote) {
+                quickNote.value = localStorage.getItem(STORAGE_KEYS.quickNote) || '';
+                
+                quickNote.addEventListener('input', () => {
+                    localStorage.setItem(STORAGE_KEYS.quickNote, quickNote.value);
+                });
+            }
+
+            // Pomodoro timer
+            let timerInterval;
+            let timeLeft = 25 * 60; // 25 minutes in seconds
+            let isRunning = false;
+
+            const timerDisplay = document.getElementById('timerDisplay');
+            const startButton = document.getElementById('startTimer');
+            const resetButton = document.getElementById('resetTimer');
+
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            function startTimer() {
+                if (isRunning) {
+                    // Pause
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    startButton.textContent = 'Start';
+                    startButton.classList.remove('active');
+                } else {
+                    // Start
+                    isRunning = true;
+                    startButton.textContent = 'Pause';
+                    startButton.classList.add('active');
+                    
+                    timerInterval = setInterval(() => {
+                        timeLeft--;
+                        updateTimerDisplay();
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timerInterval);
+                            isRunning = false;
+                            startButton.textContent = 'Start';
+                            startButton.classList.remove('active');
+                            
+                            // Timer finished - could add notification here
+                            alert('Pomodoro session complete! Time for a break.');
+                            resetTimer();
+                        }
+                    }, 1000);
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                isRunning = false;
+                timeLeft = 25 * 60;
+                startButton.textContent = 'Start';
+                startButton.classList.remove('active');
+                updateTimerDisplay();
+            }
+
+            if (startButton && resetButton) {
+                startButton.addEventListener('click', startTimer);
+                resetButton.addEventListener('click', resetTimer);
+                updateTimerDisplay();
+            }
+        }
+
+        // Keyboard shortcuts
+        function initKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Focus search with '/' or 'Ctrl+K'
+                if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && 
+                    !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Add bookmark with 'Ctrl+B'
+                if (e.ctrlKey && e.key === 'b' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    addBookmarkPrompt();
+                }
+                
+                // Open settings with 'Ctrl+,'
+                if (e.ctrlKey && e.key === ',' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    document.getElementById('settingsOverlay').classList.add('show');
+                    refreshIcons();
+                }
+            });
+        }
+
+        // Initialize everything
+        function init() {
+            initSettings(); // Initialize settings first
+            updateGreeting();
+            displayQuote();
+            updateClock();
+            pickLocalWallpaper();
+            initializeSearchEngine();
+            renderBookmarks();
+            initWeather();
+            initProductivityPanel();
+            initKeyboardShortcuts();
+            
+            // Update clock every second
+            setInterval(updateClock, 1000);
+            
+            // Update greeting every minute
+            setInterval(updateGreeting, 60000);
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
 </body>
 
 </html>
