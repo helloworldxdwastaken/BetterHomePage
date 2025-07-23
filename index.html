@@ -1506,16 +1506,50 @@
 
         // Unsplash wallpaper for online mode
         function pickUnsplashWallpaper() {
-            const unsplashUrl = 'https://source.unsplash.com/1920x1080/?nature,landscape,abstract';
+            // Try multiple Unsplash endpoints for better reliability
+            const unsplashUrls = [
+                'https://source.unsplash.com/1920x1080/?nature,landscape',
+                'https://source.unsplash.com/1920x1080/?abstract,minimal',
+                'https://source.unsplash.com/1920x1080/?dark,wallpaper',
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop'
+            ];
+            
+            // Add random parameter to avoid caching
+            const randomParam = `&t=${Date.now()}`;
+            const selectedUrl = unsplashUrls[Math.floor(Math.random() * unsplashUrls.length)] + randomParam;
+            
             const img = new Image();
             img.onload = () => {
-                document.body.style.backgroundImage = `url('${unsplashUrl}')`;
+                document.body.style.backgroundImage = `url('${selectedUrl}')`;
+                console.log('Unsplash wallpaper loaded successfully');
             };
             img.onerror = () => {
-                console.warn('Failed to load Unsplash wallpaper, falling back to local');
+                console.warn('Failed to load Unsplash wallpaper, trying alternative...');
+                // Try a direct Unsplash photo as fallback
+                tryAlternativeUnsplash();
+            };
+            img.src = selectedUrl;
+        }
+
+        function tryAlternativeUnsplash() {
+            // Specific high-quality Unsplash photos as backup
+            const backupUrls = [
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format',
+                'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop&auto=format'
+            ];
+            
+            const backupUrl = backupUrls[Math.floor(Math.random() * backupUrls.length)];
+            const img = new Image();
+            img.onload = () => {
+                document.body.style.backgroundImage = `url('${backupUrl}')`;
+                console.log('Alternative Unsplash wallpaper loaded successfully');
+            };
+            img.onerror = () => {
+                console.warn('All Unsplash options failed, falling back to local wallpapers');
                 pickLocalWallpaper();
             };
-            img.src = unsplashUrl;
+            img.src = backupUrl;
         }
 
         // Enhanced clock with ticker animations
