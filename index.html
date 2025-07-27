@@ -55,6 +55,44 @@
             position: relative;
             overflow-x: hidden;
             font-weight: 400;
+            transition: background-image 0.8s ease-in-out;
+        }
+
+        /* Background preloader styles */
+        .bg-preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .bg-preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .bg-loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Background is now loaded, show smooth transition */
+        body.bg-loaded {
+            opacity: 1;
         }
 
         /* Enhanced overlay without blur in normal mode */
@@ -1010,6 +1048,11 @@
 </head>
 
 <body class="page-transition">
+    <!-- Background Preloader -->
+    <div class="bg-preloader" id="bgPreloader">
+        <div class="bg-loader"></div>
+    </div>
+
     <!-- Weather Widget on Right Side -->
     <div class="weather-widget" id="weatherWidget">
         <div id="weather" class="loading">Loading weather...</div>
@@ -1151,6 +1194,109 @@
         let isOnline = navigator.onLine;
         window.addEventListener('online', () => { isOnline = true; });
         window.addEventListener('offline', () => { isOnline = false; });
+
+        // Background preloader system
+        class BackgroundPreloader {
+            constructor() {
+                this.loadQueue = [];
+                this.preloadedImages = new Map();
+                this.currentBackground = null;
+                this.isLoading = false;
+            }
+
+            // Preload image with promise
+            preloadImage(url) {
+                return new Promise((resolve, reject) => {
+                    // Check if already preloaded
+                    if (this.preloadedImages.has(url)) {
+                        resolve(this.preloadedImages.get(url));
+                        return;
+                    }
+
+                    const img = new Image();
+                    img.onload = () => {
+                        this.preloadedImages.set(url, img);
+                        resolve(img);
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed to preload image: ${url}`);
+                        reject(new Error(`Failed to load ${url}`));
+                    };
+                    img.src = url;
+                });
+            }
+
+            // Preload multiple images
+            async preloadImages(urls) {
+                const promises = urls.map(url => this.preloadImage(url).catch(() => null));
+                return Promise.allSettled(promises);
+            }
+
+            // Set background with smooth transition
+            async setBackground(url) {
+                if (this.isLoading) return false;
+                this.isLoading = true;
+
+                try {
+                    // Preload the image first
+                    await this.preloadImage(url);
+                    
+                    // Apply background smoothly
+                    document.body.style.backgroundImage = `url('${url}')`;
+                    this.currentBackground = url;
+                    
+                    // Hide preloader with fade animation
+                    const preloader = document.getElementById('bgPreloader');
+                    if (preloader) {
+                        preloader.classList.add('fade-out');
+                        setTimeout(() => {
+                            preloader.style.display = 'none';
+                        }, 800);
+                    }
+
+                    // Mark body as loaded
+                    document.body.classList.add('bg-loaded');
+                    console.log(`Background loaded successfully: ${url}`);
+                    return true;
+                } catch (error) {
+                    console.warn(`Background load failed: ${error.message}`);
+                    return false;
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            // Preload next wallpapers for faster switching
+            async preloadNextWallpapers() {
+                if (isOnline) {
+                    // Preload multiple Unsplash alternatives
+                    const unsplashUrls = [
+                        'https://source.unsplash.com/1920x1080/?nature,landscape',
+                        'https://source.unsplash.com/1920x1080/?mountains,nature',
+                        'https://source.unsplash.com/1920x1080/?abstract,minimal',
+                        'https://source.unsplash.com/1920x1080/?space,galaxy'
+                    ].map(url => `${url}&t=${Date.now() + Math.random()}`);
+                    
+                    this.preloadImages(unsplashUrls);
+                } else {
+                    // Preload local wallpapers
+                    const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+                    this.preloadImages(localWallpapers);
+                }
+            }
+
+            // Get a preloaded background or fallback
+            getPreloadedBackground() {
+                if (this.preloadedImages.size > 0) {
+                    const urls = Array.from(this.preloadedImages.keys());
+                    return urls[Math.floor(Math.random() * urls.length)];
+                }
+                return null;
+            }
+        }
+
+        // Initialize background preloader
+        const bgPreloader = new BackgroundPreloader();
 
         // Load settings
         function loadSettings() {
@@ -1486,26 +1632,25 @@
             }, 400);
         }
 
-        // Enhanced wallpaper system
+        // Enhanced wallpaper system with preloading
         const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
 
-        function pickLocalWallpaper() {
+        async function pickLocalWallpaper() {
             let idx = Number(localStorage.getItem(STORAGE_KEYS.wallpaperIndex) || 0);
-            const img = new Image();
-            img.onload = () => {
-                document.body.style.backgroundImage = `url('${localWallpapers[idx]}')`;
+            const wallpaperUrl = localWallpapers[idx];
+            
+            const success = await bgPreloader.setBackground(wallpaperUrl);
+            if (success) {
                 localStorage.setItem(STORAGE_KEYS.wallpaperIndex, (idx + 1) % localWallpapers.length);
-            };
-            img.onerror = () => {
-                console.warn(`Failed to load wallpaper: ${localWallpapers[idx]}`);
-                // Try next wallpaper or use fallback
+            } else {
+                // Try fallback gradient
                 document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            };
-            img.src = localWallpapers[idx];
+                console.warn(`Failed to load wallpaper: ${wallpaperUrl}, using fallback`);
+            }
         }
 
-        // Unsplash wallpaper for online mode
-        function pickUnsplashWallpaper() {
+        // Enhanced Unsplash wallpaper with preloading
+        async function pickUnsplashWallpaper() {
             // Large collection of different Unsplash endpoints and categories
             const unsplashUrls = [
                 // Nature & Landscapes
@@ -1547,20 +1692,14 @@
             const randomParam = `&t=${Date.now()}`;
             const selectedUrl = unsplashUrls[Math.floor(Math.random() * unsplashUrls.length)] + randomParam;
             
-            const img = new Image();
-            img.onload = () => {
-                document.body.style.backgroundImage = `url('${selectedUrl}')`;
-                console.log('Unsplash wallpaper loaded successfully:', selectedUrl);
-            };
-            img.onerror = () => {
-                console.warn('Failed to load Unsplash wallpaper, trying alternative...');
-                // Try a direct Unsplash photo as fallback
-                tryAlternativeUnsplash();
-            };
-            img.src = selectedUrl;
+            const success = await bgPreloader.setBackground(selectedUrl);
+            if (!success) {
+                console.warn('Primary Unsplash failed, trying alternative...');
+                await tryAlternativeUnsplash();
+            }
         }
 
-        function tryAlternativeUnsplash() {
+        async function tryAlternativeUnsplash() {
             // Large collection of specific high-quality Unsplash photos as backup
             const backupUrls = [
                 // Nature & Landscapes
@@ -1613,16 +1752,11 @@
             ];
             
             const backupUrl = backupUrls[Math.floor(Math.random() * backupUrls.length)];
-            const img = new Image();
-            img.onload = () => {
-                document.body.style.backgroundImage = `url('${backupUrl}')`;
-                console.log('Alternative Unsplash wallpaper loaded successfully:', backupUrl);
-            };
-            img.onerror = () => {
+            const success = await bgPreloader.setBackground(backupUrl);
+            if (!success) {
                 console.warn('All Unsplash options failed, falling back to local wallpapers');
-                pickLocalWallpaper();
-            };
-            img.src = backupUrl;
+                await pickLocalWallpaper();
+            }
         }
 
         // Enhanced clock with ticker animations
@@ -2225,25 +2359,30 @@
             });
         }
 
-        // Initialize everything
-        function init() {
-            initSettings(); // Initialize settings first
-            initImportExport(); // Initialize import/export
+        // Initialize everything with background preloading
+        async function init() {
+            // Start background preloading immediately
+            bgPreloader.preloadNextWallpapers();
+            
+            // Initialize settings first
+            initSettings();
+            initImportExport();
+            
+            // Initialize UI components
             updateGreeting();
             displayQuote();
             updateClock();
-            
-            // Choose wallpaper based on online status
-            if (isOnline) {
-                pickUnsplashWallpaper();
-            } else {
-                pickLocalWallpaper();
-            }
-            
             initializeSearchEngine();
             renderBookmarks();
             initWeather();
             initKeyboardShortcuts();
+            
+            // Choose and set wallpaper with preloading
+            if (isOnline) {
+                await pickUnsplashWallpaper();
+            } else {
+                await pickLocalWallpaper();
+            }
             
             // Update clock every second
             setInterval(updateClock, 1000);
