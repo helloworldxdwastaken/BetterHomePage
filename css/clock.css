@@ -1,0 +1,173 @@
+/* Greeting and Clock styles */
+
+#greeting {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 20px rgba(255,255,255,0.1);
+    word-break: break-word;
+    hyphens: auto;
+    transition: var(--spring-transition);
+    transform-origin: center;
+}
+
+#greeting.updating {
+    transform: scale(1.05) rotateX(10deg);
+    filter: blur(2px);
+    opacity: 0.7;
+}
+
+#username {
+    cursor: pointer;
+    position: relative;
+    transition: var(--spring-transition);
+    display: inline;
+    max-width: none;
+    overflow: visible;
+    text-overflow: none;
+    white-space: normal;
+    color: inherit;
+    background: inherit;
+    -webkit-background-clip: inherit;
+    -webkit-text-fill-color: inherit;
+}
+
+#username:hover {
+    transform: scale(1.02);
+}
+
+#username::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-color);
+    transition: width 0.3s ease;
+}
+
+#username:hover::after {
+    width: 100%;
+}
+
+/* Quote styles */
+.quote {
+    font-style: italic;
+    opacity: 0.8;
+    margin-bottom: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.5;
+    transition: var(--spring-transition);
+    transform-origin: center;
+}
+
+.quote.updating {
+    transform: translateY(-10px) scale(0.95);
+    opacity: 0.3;
+    filter: blur(1px);
+}
+
+/* Clock styles */
+.clock {
+    font-size: clamp(4rem, 12vw, 8rem);
+    margin: 1rem 0 2rem 0;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 20px rgba(255,255,255,0.1);
+    font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.clock .digit {
+    display: inline-block;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.4s ease;
+    position: relative;
+    min-width: 0.6em;
+    text-align: center;
+}
+
+.clock .colon {
+    display: inline-block;
+    animation: blink 2s infinite;
+    opacity: 0.8;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 0.8; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.clock .digit.flipping {
+    transform: rotateX(180deg) scale(1.2);
+    opacity: 0;
+}
+
+.clock .digit.tick-up {
+    animation: tickUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.clock .digit.tick-down {
+    animation: tickDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes tickUp {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-20px) scale(1.1); opacity: 0.7; }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes tickDown {
+    0% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(20px) scale(1.1); opacity: 0.7; }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes digitFlip {
+    0% {
+        transform: rotateX(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: rotateX(90deg);
+        opacity: 0;
+    }
+    100% {
+        transform: rotateX(0deg);
+        opacity: 1;
+    }
+}
+
+.clock .digit.flip-animation {
+    animation: digitFlip 0.6s ease-in-out;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .clock {
+        font-size: clamp(3rem, 10vw, 5rem);
+    }
+}
+
+@media (max-width: 480px) {
+    #greeting {
+        font-size: 1.5rem;
+    }
+    
+    .quote {
+        font-size: 0.85rem;
+    }
+    
+    .clock {
+        font-size: 3rem;
+    }
+}

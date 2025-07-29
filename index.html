@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark">
+    <title>BetterHome</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BetterHome">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    
+    <!-- Icon Libraries -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/clock.css">
+    <link rel="stylesheet" href="css/search.css">
+    <link rel="stylesheet" href="css/bookmarks.css">
+    <link rel="stylesheet" href="css/weather.css">
+    <link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/onboarding.css">
+    <link rel="stylesheet" href="css/wallpaper-lock.css">
+</head>
+
+<body class="page-transition">
+    <!-- Background Preloader -->
+    <div class="bg-preloader" id="bgPreloader">
+        <div class="bg-loader"></div>
+    </div>
+
+    <!-- Onboarding Overlay -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-panel">
+            <div class="onboarding-header">
+                <h2>Welcome to BetterHome! 🚀</h2>
+                <button class="onboarding-skip" id="onboardingSkip">Skip</button>
+            </div>
+            
+            <div class="onboarding-content">
+                <div class="onboarding-intro">
+                    <p>Make BetterHome your default homepage to enjoy a beautiful new tab experience every time you open your browser.</p>
+                </div>
+                
+                <div class="browser-instructions" id="browserInstructions">
+                    <!-- Browser instructions will be here -->
+                </div>
+            </div>
+            
+            <div class="onboarding-footer">
+                <button class="onboarding-complete" id="onboardingComplete">Got it! Let's start</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Widget on Right Side -->
+    <div class="weather-widget" id="weatherWidget">
+        <div id="weather" class="loading">Loading weather...</div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <button class="settings-close" id="settingsClose">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    
+                    <div class="setting-item">
+                        <label for="fontSelect">Font Family</label>
+                        <select id="fontSelect" class="setting-select">
+                            <option value="Inter">Inter (Default)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Fira Sans">Fira Sans</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Widgets</h3>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="weatherToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Weather Widget</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="quoteToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Daily Quote</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Data Management</h3>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="exportDataBtn">
+                            <i data-lucide="download"></i>
+                            Export All Settings
+                        </button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="importFileInput" accept=".json">
+                            <label for="importFileInput" class="file-input-label">
+                                <i data-lucide="upload"></i>
+                                Import Settings
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="showOnboardingBtn">
+                            <i data-lucide="info"></i>
+                            Show Setup Instructions
+                        </button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn danger" id="clearDataBtn">
+                            <i data-lucide="trash-2"></i>
+                            Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn-float" id="settingsBtn" title="Settings">
+        <i data-lucide="settings"></i>
+    </button>
+    
+    <!-- Wallpaper Lock Button -->
+    <button class="wallpaper-lock-btn" id="wallpaperLockBtn" title="Lock/Unlock Wallpaper">
+        <i data-lucide="lock" id="lockIcon"></i>
+        <i data-lucide="unlock" id="unlockIcon" style="display: none;"></i>
+    </button>
+
+    <!-- Main Content -->
+    <h1 id="greeting" class="loading">Loading greeting...</h1>
+    <div class="quote" id="quote">"Loading quote..."</div>
+    <div class="clock" id="clock">Loading time...</div>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
+                <input type="text" name="q" id="searchInput" placeholder="Search with Google" autocomplete="off" />
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </form>
+            <div class="engine-wrapper">
+                <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
+                <div class="engine-select" id="engineSelect">
+                    <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
+                    <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
+                    <img src="https://brave.com/static-assets/images/brave-favicon.png" data-action="brave" class="engine-icon">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bookmarks-container">
+        <div class="bookmarks" id="bookmarks"></div>
+    </div>
+
+    <!-- Load the browser instructions template -->
+    <script id="browser-instructions-template" type="text/template">
+        <!-- Brave Browser -->
+        <div class="browser-item" data-browser="brave">
+            <div class="browser-header">
+                <img src="https://brave.com/static-assets/images/brave-favicon.png" class="browser-icon" alt="Brave">
+                <span class="browser-name">Brave Browser</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Go to <code>Settings</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">In the "Get started" section, select <code>Open a specific page or set of pages</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Click <code>Add a new page</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opera Browser -->
+        <div class="browser-item" data-browser="opera">
+            <div class="browser-header">
+                <img src="https://www.opera.com/favicon.ico" class="browser-icon" alt="Opera">
+                <span class="browser-name">Opera Browser</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Click the Opera menu in the top-left corner</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <code>Settings</code> (or press Alt+P)</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Under "On startup", select <code>Open a specific page or set of pages</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Click <code>Add a new page</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chrome Browser -->
+        <div class="browser-item" data-browser="chrome">
+            <div class="browser-header">
+                <img src="https://www.google.com/chrome/static/images/chrome-logo-m100.svg" class="browser-icon" alt="Chrome">
+                <span class="browser-name">Google Chrome</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Click the three dots menu (⋮) in the top-right corner</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <code>Settings</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">In the "On startup" section, select <code>Open a specific page or set of pages</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Click <code>Add a new page</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Firefox Browser -->
+        <div class="browser-item" data-browser="firefox">
+            <div class="browser-header">
+                <img src="https://www.mozilla.org/media/protocol/img/logos/firefox/browser/logo.eb1324e44442.svg" class="browser-icon" alt="Firefox" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/a0/Firefox_logo%2C_2019.svg'">
+                <span class="browser-name">Mozilla Firefox</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <code>Settings</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">In the "Home" panel, next to "Homepage and new windows", select <code>Custom URLs...</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Enter the URL of this page</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Make sure "Homepage and new windows" is also selected for "New tabs"</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safari Browser -->
+        <div class="browser-item" data-browser="safari">
+            <div class="browser-header">
+                <img src="https://www.apple.com/favicon.ico" class="browser-icon" alt="Safari">
+                <span class="browser-name">Safari</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">From the Safari menu, choose <code>Preferences</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Click the <code>General</code> tab</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">In the "Homepage" field, enter the URL of this page</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">For "New windows open with", choose <code>Homepage</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">For "New tabs open with", choose <code>Homepage</code></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edge Browser -->
+        <div class="browser-item" data-browser="edge">
+            <div class="browser-header">
+                <img src="https://www.microsoft.com/favicon.ico" class="browser-icon" alt="Edge">
+                <span class="browser-name">Microsoft Edge</span>
+                <i data-lucide="chevron-right" class="browser-expand"></i>
+            </div>
+            <div class="browser-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text">Click the three dots menu (⋯) in the top-right corner</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text">Select <code>Settings</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text">Click <code>Start, home, and new tabs</code> in the left sidebar</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-text">Under "When Edge starts", select <code>Open these pages</code></div>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-text">Click <code>Add a new page</code>, enter the URL, and click <code>Add</code></div>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!-- Initialize browser instructions -->
+    <script>
+        // Load browser instructions from template
+        document.addEventListener('DOMContentLoaded', function() {
+            const template = document.getElementById('browser-instructions-template');
+            const container = document.getElementById('browserInstructions');
+            if (template && container) {
+                container.innerHTML = template.innerHTML;
+            }
+        });
+    </script>
+
+    <!-- Main JavaScript Module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>

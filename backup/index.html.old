@@ -1,0 +1,2988 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark">
+    <title>BetterHome</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BetterHome">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=Source+Sans+Pro:wght@300;400;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <!-- Icon Libraries -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    
+    <style>
+        /* Enhanced CSS with better organization and new features */
+        :root {
+            --bg-color: #0a0a0a;
+            --fg-color: #ffffff;
+            --accent-color: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --shadow-light: rgba(255, 255, 255, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.3);
+            --border-radius: 24px; /* More rounded */
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --spring-transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            color-scheme: dark;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--fg-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow-x: hidden;
+            font-weight: 400;
+            transition: background-image 0.8s ease-in-out;
+        }
+
+        /* Background preloader styles */
+        .bg-preloader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .bg-preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .bg-loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Background is now loaded, show smooth transition */
+        body.bg-loaded {
+            opacity: 1;
+        }
+
+        /* Enhanced overlay without blur in normal mode */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            pointer-events: none;
+            z-index: 0;
+            transition: var(--transition);
+        }
+
+        body.search-focused::before {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(2px);
+        }
+
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced greeting with smooth transitions */
+        #greeting {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 20px rgba(255,255,255,0.1);
+            word-break: break-word;
+            hyphens: auto;
+            transition: var(--spring-transition);
+            transform-origin: center;
+        }
+
+        #greeting.updating {
+            transform: scale(1.05) rotateX(10deg);
+            filter: blur(2px);
+            opacity: 0.7;
+        }
+
+        #username {
+            cursor: pointer;
+            position: relative;
+            transition: var(--spring-transition);
+            display: inline;
+            max-width: none;
+            overflow: visible;
+            text-overflow: none;
+            white-space: normal;
+            color: inherit;
+            background: inherit;
+            -webkit-background-clip: inherit;
+            -webkit-text-fill-color: inherit;
+        }
+
+        #username:hover {
+            transform: scale(1.02);
+        }
+
+        #username::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        #username:hover::after {
+            width: 100%;
+        }
+
+        /* Enhanced quote with smooth transitions */
+        .quote {
+            font-style: italic;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-weight: 300;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            text-align: center;
+            max-width: 600px;
+            line-height: 1.5;
+            transition: var(--spring-transition);
+            transform-origin: center;
+        }
+
+        .quote.updating {
+            transform: translateY(-10px) scale(0.95);
+            opacity: 0.3;
+            filter: blur(1px);
+        }
+
+        /* Enhanced clock with ticker animations */
+        .clock {
+            font-size: clamp(4rem, 12vw, 8rem);
+            margin: 1rem 0 2rem 0;
+            font-weight: 200;
+            letter-spacing: -0.02em;
+            text-shadow: 0 4px 20px rgba(255,255,255,0.1);
+            font-family: var(--font-family, 'Inter'), -apple-system, BlinkMacSystemFont, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clock .digit {
+            display: inline-block;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.4s ease;
+            position: relative;
+            min-width: 0.6em;
+            text-align: center;
+        }
+
+        .clock .colon {
+            display: inline-block;
+            animation: blink 2s infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 0.8; }
+            51%, 100% { opacity: 0.3; }
+        }
+
+        .clock .digit.flipping {
+            transform: rotateX(180deg) scale(1.2);
+            opacity: 0;
+        }
+
+        .clock .digit.tick-up {
+            animation: tickUp 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .clock .digit.tick-down {
+            animation: tickDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes tickUp {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); opacity: 0.7; }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        @keyframes tickDown {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(20px) scale(1.1); opacity: 0.7; }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        /* Enhanced search bar with more rounded design - same width as bookmarks */
+        .search-container {
+            position: relative;
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px; /* Same as bookmarks */
+        }
+
+        .search-bar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 6px;
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.3),
+                0 0 0 1px rgba(255,255,255,0.05) inset;
+            transition: var(--spring-transition);
+            width: 100%;
+        }
+
+        #searchForm {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+
+        .search-bar.focused {
+            transform: scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.4),
+                0 0 0 1px rgba(59, 130, 246, 0.3) inset,
+                0 0 20px rgba(59, 130, 246, 0.1);
+        }
+
+        input {
+            padding: 14px 24px;
+            padding-right: 60px; /* Add space for the engine icon */
+            border: none;
+            font-size: 1rem;
+            width: 100%;
+            background: transparent;
+            color: #fff;
+            font-family: inherit;
+            font-weight: 400;
+            outline: none;
+            border-radius: 50px;
+        }
+
+        input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Enhanced engine selector with smooth animations */
+        .engine-wrapper {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 50px;
+        }
+
+        .engine-wrapper:hover {
+            transform: translateY(-50%) scale(1.05);
+            background: rgba(255,255,255,0.05);
+            transform-origin: center;
+        }
+
+        .engine-select {
+            position: absolute;
+            left: calc(100% + 8px); /* Position to the right side of the engine wrapper */
+            top: 50%;
+            transform: translateY(-50%); /* Center vertically */
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 8px;
+            display: none;
+            flex-direction: row;
+            gap: 8px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            z-index: 200; /* Higher z-index to appear above everything */
+            opacity: 0;
+            transition: var(--spring-transition);
+        }
+
+        .engine-select.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(-50%) scale(1);
+            animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes dropIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-30px) rotate(-10deg);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.1) translateY(5px) rotate(2deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0) rotate(0deg);
+            }
+        }
+
+        .engine-icon {
+            height: 28px;
+            width: 28px;
+            border-radius: 8px;
+            transition: var(--spring-transition);
+            opacity: 0.7;
+            cursor: pointer;
+        }
+
+        .engine-icon:hover,
+        .engine-icon.active {
+            opacity: 1;
+            transform: scale(1.2) rotate(5deg);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .engine-icon:active {
+            transform: scale(0.95);
+        }
+
+        /* Search suggestions - positioned above bookmarks */
+        .search-suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--spring-transition);
+            z-index: 150; /* Higher z-index to appear above bookmarks but below engine selector */
+        }
+
+        .search-suggestions.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 16px;
+            margin: 6px;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .suggestion-item .icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        .suggestion-item .text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-item .type {
+            font-size: 0.8rem;
+            opacity: 0.5;
+        }
+
+        /* Bookmarks container - same width as search */
+        .bookmarks-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px; /* Same as search bar */
+            margin: 0 auto;
+            position: relative;
+            z-index: 1; /* Lower z-index so dropdowns appear above */
+        }
+
+        .bookmarks {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1rem;
+            justify-content: center;
+            align-items: start;
+            width: 100%;
+            position: relative;
+            z-index: 1; /* Ensure bookmarks are below dropdowns */
+        }
+
+        .bookmark {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 0.75rem;
+            border-radius: 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: var(--spring-transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bookmark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .bookmark:hover::before {
+            opacity: 1;
+        }
+
+        .bookmark:hover {
+            transform: translateY(-6px) scale(1.03) rotate(1deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+
+        .bookmark-icon {
+            width: 36px;
+            height: 36px;
+            margin-bottom: 6px;
+            border-radius: 10px;
+            transition: var(--spring-transition);
+        }
+
+        .bookmark:hover .bookmark-icon {
+            transform: scale(1.15) rotate(-1deg);
+        }
+
+        .bookmark-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            opacity: 0.9;
+            line-height: 1.2;
+        }
+
+        .bookmark-add {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.4);
+            font-size: 1.5rem;
+            cursor: pointer;
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 16px;
+            padding: 0.75rem;
+            transition: var(--spring-transition);
+            background: transparent;
+            backdrop-filter: none;
+        }
+
+        .bookmark-add:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: scale(1.03) rotate(3deg);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Weather widget on the right */
+        .weather-widget {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            transition: var(--spring-transition);
+            min-width: 250px;
+            z-index: 10;
+        }
+
+        .weather-widget:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 0.8rem;
+        }
+
+        .weather-location {
+            font-weight: 600;
+        }
+
+        .weather-update {
+            opacity: 0.6;
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .weather-icon {
+            font-size: 2rem;
+        }
+
+        .weather-temp-large {
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+
+        .weather-wind {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .weather-forecast {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .forecast-day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            flex: 1;
+        }
+
+        .forecast-icon {
+            font-size: 1.2rem;
+            margin: 4px 0;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .weather-widget {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .search-container {
+                width: 100%;
+                padding: 0 20px;
+                max-width: 100%;
+            }
+
+            .bookmarks-container {
+                width: 100%;
+                padding: 0 20px;
+                max-width: 100%;
+            }
+
+            .bookmarks {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.8rem;
+            }
+
+            .bookmark {
+                padding: 0.6rem;
+            }
+
+            .bookmark-icon {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bookmarks {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.6rem;
+            }
+
+            .bookmark {
+                padding: 0.5rem;
+            }
+
+            .bookmark-icon {
+                width: 28px;
+                height: 28px;
+            }
+
+            .bookmark-name {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Loading animations */
+        @keyframes shimmer {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: shimmer 1.5s ease-in-out infinite;
+        }
+
+        /* Smooth page transitions */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-transition.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Settings styles */
+        .settings-btn-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--spring-transition);
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .settings-btn-float:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+        }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--spring-transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .settings-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.8) translateY(40px) rotate(-5deg);
+            transition: var(--spring-transition);
+        }
+
+        .settings-overlay.show .settings-panel {
+            transform: scale(1) translateY(0) rotate(0deg);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: var(--spring-transition);
+        }
+
+        .settings-close:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .settings-content {
+            padding: 24px;
+        }
+
+        .settings-section {
+            margin-bottom: 32px;
+        }
+
+        .settings-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 16px 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .setting-item {
+            margin-bottom: 16px;
+            transition: var(--transition);
+        }
+
+        .setting-item:hover {
+            transform: translateX(5px);
+        }
+
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--spring-transition);
+        }
+
+        .setting-select:focus {
+            outline: 1px solid var(--accent-color);
+            background: rgba(255,255,255,0.08);
+            transform: scale(1.02);
+        }
+
+        .setting-toggle {
+            display: flex !important;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            margin-bottom: 0 !important;
+            transition: var(--transition);
+        }
+
+        .setting-toggle:hover {
+            transform: translateX(5px);
+        }
+
+        .setting-toggle input[type="checkbox"] {
+            display: none;
+        }
+
+        .toggle-slider {
+            width: 48px;
+            height: 24px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            position: relative;
+            transition: var(--spring-transition);
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            top: 2px;
+            left: 2px;
+            transition: var(--spring-transition);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .setting-toggle input:checked + .toggle-slider {
+            background: var(--accent-color);
+        }
+
+        .setting-toggle input:checked + .toggle-slider::before {
+            transform: translateX(24px) scale(1.1);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .setting-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--spring-transition);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .setting-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.02);
+        }
+
+        .setting-btn:active {
+            transform: scale(0.98);
+        }
+
+        .setting-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .setting-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* Widget visibility classes */
+        .widget-hidden {
+            display: none !important;
+        }
+
+        /* Onboarding overlay styles */
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--spring-transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .onboarding-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .onboarding-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.8) translateY(40px) rotate(-5deg);
+            transition: var(--spring-transition);
+            animation: onboardingBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes onboardingBounce {
+            0% {
+                transform: scale(0.8) translateY(40px) rotate(-5deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05) translateY(-10px) rotate(1deg);
+            }
+            100% {
+                transform: scale(1) translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .onboarding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .onboarding-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .onboarding-skip {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: var(--spring-transition);
+            font-size: 0.9rem;
+        }
+
+        .onboarding-skip:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .onboarding-content {
+            padding: 24px;
+        }
+
+        .onboarding-intro {
+            text-align: center;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        .onboarding-intro p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .browser-instructions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .browser-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: var(--spring-transition);
+            cursor: pointer;
+        }
+
+        .browser-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .browser-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .browser-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .browser-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .browser-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .browser-expand {
+            transition: var(--spring-transition);
+        }
+
+        .browser-item.active .browser-expand {
+            transform: rotate(90deg);
+        }
+
+        .browser-steps {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .browser-item.active .browser-steps {
+            max-height: 500px;
+            margin-top: 16px;
+        }
+
+        .step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 24px;
+            height: 24px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .step-text code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .onboarding-footer {
+            padding: 24px;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .onboarding-complete {
+            padding: 14px 32px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--spring-transition);
+            font-family: inherit;
+        }
+
+        .onboarding-complete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        }
+
+        .onboarding-complete:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobile responsiveness for onboarding */
+        @media (max-width: 768px) {
+            .onboarding-panel {
+                max-width: 100%;
+                margin: 10px;
+            }
+
+            .browser-name {
+                font-size: 1rem;
+            }
+
+            .step-text {
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Additional animations */
+        @keyframes digitFlip {
+            0% {
+                transform: rotateX(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: rotateX(90deg);
+                opacity: 0;
+            }
+            100% {
+                transform: rotateX(0deg);
+                opacity: 1;
+            }
+        }
+
+        .clock .digit.flip-animation {
+            animation: digitFlip 0.6s ease-in-out;
+        }
+
+        @keyframes slideInRight {
+            0% {
+                opacity: 0;
+                transform: translateY(-50%) translateX(-20px) scale(0.8);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-50%) translateX(5px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0) scale(1);
+            }
+        }
+
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100px); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* File input styling */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--spring-transition);
+            width: 100%;
+            justify-content: center;
+        }
+
+        .file-input-label:hover {
+            background: rgba(255,255,255,0.1);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body class="page-transition">
+    <!-- Background Preloader -->
+    <div class="bg-preloader" id="bgPreloader">
+        <div class="bg-loader"></div>
+    </div>
+
+    <!-- Onboarding Overlay -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-panel">
+            <div class="onboarding-header">
+                <h2>Welcome to BetterHome! 🚀</h2>
+                <button class="onboarding-skip" id="onboardingSkip">Skip</button>
+            </div>
+            
+            <div class="onboarding-content">
+                <div class="onboarding-intro">
+                    <p>Make BetterHome your default homepage to enjoy a beautiful new tab experience every time you open your browser.</p>
+                </div>
+                
+                <div class="browser-instructions" id="browserInstructions">
+                    <!-- Brave Browser -->
+                    <div class="browser-item" data-browser="brave">
+                        <div class="browser-header">
+                            <img src="https://brave.com/static-assets/images/brave-favicon.png" class="browser-icon" alt="Brave">
+                            <span class="browser-name">Brave Browser</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Go to <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Get started" section, select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opera Browser -->
+                    <div class="browser-item" data-browser="opera">
+                        <div class="browser-header">
+                            <img src="https://www.opera.com/favicon.ico" class="browser-icon" alt="Opera">
+                            <span class="browser-name">Opera Browser</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the Opera menu in the top-left corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code> (or press Alt+P)</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">Under "On startup", select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chrome Browser -->
+                    <div class="browser-item" data-browser="chrome">
+                        <div class="browser-header">
+                            <img src="https://www.google.com/chrome/static/images/chrome-logo-m100.svg" class="browser-icon" alt="Chrome">
+                            <span class="browser-name">Google Chrome</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the three dots menu (⋮) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "On startup" section, select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Firefox Browser -->
+                    <div class="browser-item" data-browser="firefox">
+                        <div class="browser-header">
+                            <img src="https://www.mozilla.org/media/img/favicons/firefox/browser/favicon.625a3bba8445.ico" class="browser-icon" alt="Firefox">
+                            <span class="browser-name">Mozilla Firefox</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Home" panel, next to "Homepage and new windows", select <code>Custom URLs...</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Enter the URL of this page</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Make sure "Homepage and new windows" is also selected for "New tabs"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safari Browser -->
+                    <div class="browser-item" data-browser="safari">
+                        <div class="browser-header">
+                            <img src="https://www.apple.com/favicon.ico" class="browser-icon" alt="Safari">
+                            <span class="browser-name">Safari</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">From the Safari menu, choose <code>Preferences</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Click the <code>General</code> tab</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Homepage" field, enter the URL of this page</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">For "New windows open with", choose <code>Homepage</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">For "New tabs open with", choose <code>Homepage</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edge Browser -->
+                    <div class="browser-item" data-browser="edge">
+                        <div class="browser-header">
+                            <img src="https://www.microsoft.com/favicon.ico" class="browser-icon" alt="Edge">
+                            <span class="browser-name">Microsoft Edge</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the three dots menu (⋯) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">Click <code>Start, home, and new tabs</code> in the left sidebar</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Under "When Edge starts", select <code>Open these pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Click <code>Add a new page</code>, enter the URL, and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="onboarding-footer">
+                <button class="onboarding-complete" id="onboardingComplete">Got it! Let's start</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Widget on Right Side -->
+    <div class="weather-widget" id="weatherWidget">
+        <div id="weather" class="loading">Loading weather...</div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div class="settings-overlay" id="settingsOverlay">
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <button class="settings-close" id="settingsClose">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    
+                    <div class="setting-item">
+                        <label for="fontSelect">Font Family</label>
+                        <select id="fontSelect" class="setting-select">
+                            <option value="Inter">Inter (Default)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Nunito">Nunito</option>
+                            <option value="Source Sans Pro">Source Sans Pro</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Fira Sans">Fira Sans</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Widgets</h3>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="weatherToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Weather Widget</span>
+                        </label>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <label class="setting-toggle">
+                            <input type="checkbox" id="quoteToggle" checked>
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Daily Quote</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Data Management</h3>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="exportDataBtn">
+                            <i data-lucide="download"></i>
+                            Export All Settings
+                        </button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="file-input-wrapper">
+                            <input type="file" id="importFileInput" accept=".json">
+                            <label for="importFileInput" class="file-input-label">
+                                <i data-lucide="upload"></i>
+                                Import Settings
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="showOnboardingBtn">
+                            <i data-lucide="info"></i>
+                            Show Setup Instructions
+                        </button>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn danger" id="clearDataBtn">
+                            <i data-lucide="trash-2"></i>
+                            Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Button -->
+    <button class="settings-btn-float" id="settingsBtn" title="Settings">
+        <i data-lucide="settings"></i>
+    </button>
+
+    <h1 id="greeting" class="loading">Loading greeting...</h1>
+    <div class="quote" id="quote">"Loading quote..."</div>
+    <div class="clock" id="clock">Loading time...</div>
+
+    <div class="search-container">
+        <div class="search-bar">
+            <form id="searchForm" action="https://www.google.com/search" method="get" target="_self">
+                <input type="text" name="q" id="searchInput" placeholder="Search with Google" autocomplete="off" />
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </form>
+            <div class="engine-wrapper">
+                <img id="currentEngineIcon" src="https://www.google.com/favicon.ico" class="engine-icon active">
+                <div class="engine-select" id="engineSelect">
+                    <img src="https://www.google.com/favicon.ico" data-action="google" class="engine-icon">
+                    <img src="https://duckduckgo.com/favicon.ico" data-action="duckduckgo" class="engine-icon">
+                    <img src="https://brave.com/static-assets/images/brave-favicon.png" data-action="brave" class="engine-icon">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bookmarks-container">
+        <div class="bookmarks" id="bookmarks"></div>
+    </div>
+
+    <script>
+        'use strict';
+        
+        // Enhanced constants and helpers
+        const MAX_BOOKMARKS = 12;
+        const STORAGE_KEYS = {
+            bookmarks: 'customBookmarks',
+            username: 'username',
+            wallpaperIndex: 'wallpaperIndex',
+            searchHistory: 'searchHistory',
+            settings: 'betterHomeSettings'
+        };
+
+        // Default settings
+        const DEFAULT_SETTINGS = {
+            fontFamily: 'Inter',
+            weatherEnabled: true,
+            quoteEnabled: true
+        };
+
+        // Check if online
+        let isOnline = navigator.onLine;
+        window.addEventListener('online', () => { isOnline = true; });
+        window.addEventListener('offline', () => { isOnline = false; });
+
+        // Background preloader system
+        class BackgroundPreloader {
+            constructor() {
+                this.loadQueue = [];
+                this.preloadedImages = new Map();
+                this.currentBackground = null;
+                this.isLoading = false;
+            }
+
+            // Preload image with promise
+            preloadImage(url) {
+                return new Promise((resolve, reject) => {
+                    // Check if already preloaded
+                    if (this.preloadedImages.has(url)) {
+                        resolve(this.preloadedImages.get(url));
+                        return;
+                    }
+
+                    const img = new Image();
+                    img.onload = () => {
+                        this.preloadedImages.set(url, img);
+                        resolve(img);
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed to preload image: ${url}`);
+                        reject(new Error(`Failed to load ${url}`));
+                    };
+                    img.src = url;
+                });
+            }
+
+            // Preload multiple images
+            async preloadImages(urls) {
+                const promises = urls.map(url => this.preloadImage(url).catch(() => null));
+                return Promise.allSettled(promises);
+            }
+
+            // Set background with smooth transition
+            async setBackground(url) {
+                if (this.isLoading) return false;
+                this.isLoading = true;
+
+                try {
+                    // Preload the image first
+                    await this.preloadImage(url);
+                    
+                    // Apply background smoothly
+                    document.body.style.backgroundImage = `url('${url}')`;
+                    this.currentBackground = url;
+                    
+                    // Hide preloader with fade animation
+                    const preloader = document.getElementById('bgPreloader');
+                    if (preloader) {
+                        preloader.classList.add('fade-out');
+                        setTimeout(() => {
+                            preloader.style.display = 'none';
+                        }, 800);
+                    }
+
+                    // Mark body as loaded
+                    document.body.classList.add('bg-loaded');
+                    console.log(`Background loaded successfully: ${url}`);
+                    return true;
+                } catch (error) {
+                    console.warn(`Background load failed: ${error.message}`);
+                    return false;
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            // Preload next wallpapers for faster switching
+            async preloadNextWallpapers() {
+                if (isOnline) {
+                    // Preload multiple Unsplash alternatives
+                    const unsplashUrls = [
+                        'https://source.unsplash.com/1920x1080/?nature,landscape',
+                        'https://source.unsplash.com/1920x1080/?mountains,nature',
+                        'https://source.unsplash.com/1920x1080/?abstract,minimal',
+                        'https://source.unsplash.com/1920x1080/?space,galaxy'
+                    ].map(url => `${url}&t=${Date.now() + Math.random()}`);
+                    
+                    this.preloadImages(unsplashUrls);
+                } else {
+                    // Preload local wallpapers
+                    const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+                    this.preloadImages(localWallpapers);
+                }
+            }
+
+            // Get a preloaded background or fallback
+            getPreloadedBackground() {
+                if (this.preloadedImages.size > 0) {
+                    const urls = Array.from(this.preloadedImages.keys());
+                    return urls[Math.floor(Math.random() * urls.length)];
+                }
+                return null;
+            }
+        }
+
+        // Initialize background preloader
+        const bgPreloader = new BackgroundPreloader();
+
+        // Load settings
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEYS.settings);
+                return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
+            } catch (e) {
+                return DEFAULT_SETTINGS;
+            }
+        }
+
+        function saveSettings(settings) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
+            } catch (e) {
+                console.warn('Settings save failed:', e);
+            }
+        }
+
+        // Apply settings to page
+        function applySettings(settings) {
+            // Apply font family with animation
+            document.documentElement.style.setProperty('--font-family', `"${settings.fontFamily}"`);
+            
+            // Animate font change
+            document.body.style.transition = 'font-family 0.5s ease';
+            
+            // Toggle widgets with animations
+            const weatherWidget = document.getElementById('weatherWidget');
+            const quoteEl = document.getElementById('quote');
+            
+            // Helper function to show/hide widgets
+            function toggleWidget(widget, enabled) {
+                if (!widget) return;
+                
+                if (enabled) {
+                    widget.classList.remove('widget-hidden');
+                    widget.style.animation = 'slideInLeft 0.5s ease forwards';
+                } else {
+                    widget.style.animation = 'slideOutRight 0.3s ease forwards';
+                    setTimeout(() => widget.classList.add('widget-hidden'), 300);
+                }
+            }
+            
+            toggleWidget(weatherWidget, settings.weatherEnabled);
+            
+            if (quoteEl) {
+                if (settings.quoteEnabled) {
+                    quoteEl.classList.remove('widget-hidden');
+                    quoteEl.style.animation = 'fadeIn 0.5s ease forwards';
+                } else {
+                    quoteEl.classList.add('updating');
+                    setTimeout(() => quoteEl.classList.add('widget-hidden'), 300);
+                }
+            }
+        }
+
+        // Import/Export functionality
+        function initImportExport() {
+            const exportBtn = document.getElementById('exportDataBtn');
+            const importInput = document.getElementById('importFileInput');
+
+            exportBtn.addEventListener('click', () => {
+                const data = {
+                    version: '1.0',
+                    timestamp: new Date().toISOString(),
+                    settings: loadSettings(),
+                    bookmarks: loadBookmarks(),
+                    username: localStorage.getItem(STORAGE_KEYS.username),
+                    searchHistory: localStorage.getItem(STORAGE_KEYS.searchHistory)
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `betterhome-backup-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                // Show success message
+                const originalText = exportBtn.innerHTML;
+                exportBtn.innerHTML = '<i data-lucide="check"></i> Exported!';
+                exportBtn.style.background = 'rgba(16, 185, 129, 0.2)';
+                exportBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                
+                setTimeout(() => {
+                    exportBtn.innerHTML = originalText;
+                    exportBtn.style.background = '';
+                    exportBtn.style.borderColor = '';
+                    refreshIcons();
+                }, 2000);
+            });
+
+            importInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        if (confirm('This will overwrite your current settings. Continue?')) {
+                            // Import settings
+                            if (data.settings) {
+                                saveSettings(data.settings);
+                                applySettings(data.settings);
+                                
+                                // Update settings UI
+                                const fontSelect = document.getElementById('fontSelect');
+                                const weatherToggle = document.getElementById('weatherToggle');
+                                const quoteToggle = document.getElementById('quoteToggle');
+
+                                if (fontSelect) fontSelect.value = data.settings.fontFamily || 'Inter';
+                                if (weatherToggle) weatherToggle.checked = data.settings.weatherEnabled !== false;
+                                if (quoteToggle) quoteToggle.checked = data.settings.quoteEnabled !== false;
+                            }
+
+                            // Import other data
+                            if (data.bookmarks) {
+                                localStorage.setItem(STORAGE_KEYS.bookmarks, JSON.stringify(data.bookmarks));
+                                renderBookmarks();
+                            }
+                            if (data.username) {
+                                localStorage.setItem(STORAGE_KEYS.username, data.username);
+                                updateGreeting();
+                            }
+                            if (data.searchHistory) {
+                                localStorage.setItem(STORAGE_KEYS.searchHistory, data.searchHistory);
+                            }
+
+                            alert('Settings imported successfully!');
+                        }
+                    } catch (error) {
+                        alert('Error importing settings: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        // Initialize settings panel
+        function initSettings() {
+            const settings = loadSettings();
+            applySettings(settings);
+            
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsOverlay = document.getElementById('settingsOverlay');
+            const settingsClose = document.getElementById('settingsClose');
+            const fontSelect = document.getElementById('fontSelect');
+            const weatherToggle = document.getElementById('weatherToggle');
+            const quoteToggle = document.getElementById('quoteToggle');
+            const clearDataBtn = document.getElementById('clearDataBtn');
+            const showOnboardingBtn = document.getElementById('showOnboardingBtn');
+
+            // Set current values
+            if (fontSelect) fontSelect.value = settings.fontFamily;
+            if (weatherToggle) weatherToggle.checked = settings.weatherEnabled;
+            if (quoteToggle) quoteToggle.checked = settings.quoteEnabled;
+
+            // Open settings with animation
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', () => {
+                    settingsOverlay.classList.add('show');
+                    refreshIcons();
+                });
+            }
+
+            // Close settings
+            function closeSettings() {
+                settingsOverlay.classList.remove('show');
+            }
+
+            if (settingsClose) settingsClose.addEventListener('click', closeSettings);
+            if (settingsOverlay) {
+                settingsOverlay.addEventListener('click', (e) => {
+                    if (e.target === settingsOverlay) closeSettings();
+                });
+            }
+
+            // Font change with animation
+            if (fontSelect) {
+                fontSelect.addEventListener('change', () => {
+                    const newSettings = { ...loadSettings(), fontFamily: fontSelect.value };
+                    saveSettings(newSettings);
+                    applySettings(newSettings);
+                });
+            }
+
+            // Widget toggles
+            function createToggleHandler(toggle, settingKey) {
+                if (toggle) {
+                    toggle.addEventListener('change', () => {
+                        const newSettings = { ...loadSettings(), [settingKey]: toggle.checked };
+                        saveSettings(newSettings);
+                        applySettings(newSettings);
+                    });
+                }
+            }
+
+            createToggleHandler(weatherToggle, 'weatherEnabled');
+            createToggleHandler(quoteToggle, 'quoteEnabled');
+
+            // Show onboarding button
+            if (showOnboardingBtn) {
+                showOnboardingBtn.addEventListener('click', () => {
+                    closeSettings();
+                    // Show onboarding overlay
+                    const onboardingOverlay = document.getElementById('onboardingOverlay');
+                    if (onboardingOverlay) {
+                        onboardingOverlay.style.display = 'flex';
+                        setTimeout(() => {
+                            onboardingOverlay.classList.add('show');
+                            refreshIcons();
+                        }, 100);
+                    }
+                });
+            }
+            
+            // Clear data
+            if (clearDataBtn) {
+                clearDataBtn.addEventListener('click', () => {
+                    if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                        Object.values(STORAGE_KEYS).forEach(key => {
+                            localStorage.removeItem(key);
+                        });
+                        location.reload();
+                    }
+                });
+            }
+
+            // ESC key to close settings
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && settingsOverlay.classList.contains('show')) {
+                    closeSettings();
+                }
+            });
+        }
+
+        // Page transition
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 100);
+        });
+
+        // Enhanced bookmark management
+        function loadBookmarks() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEYS.bookmarks);
+                if (!raw) return getDefaultBookmarks();
+                const data = JSON.parse(raw);
+                return Array.isArray(data) ? data : getDefaultBookmarks();
+            } catch (e) {
+                console.warn('Bookmark parse failed, using defaults.', e);
+                return getDefaultBookmarks();
+            }
+        }
+
+        function getDefaultBookmarks() {
+            return [
+                { name: "YouTube", url: "https://youtube.com", icon: "https://youtube.com/favicon.ico" },
+                { name: "GitHub", url: "https://github.com", icon: "https://github.com/favicon.ico" },
+                { name: "Reddit", url: "https://reddit.com", icon: "https://reddit.com/favicon.ico" },
+                { name: "Twitter", url: "https://twitter.com", icon: "https://twitter.com/favicon.ico" },
+                { name: "Gmail", url: "https://mail.google.com", icon: "https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" },
+                { name: "Netflix", url: "https://netflix.com", icon: "https://netflix.com/favicon.ico" }
+            ];
+        }
+
+        function saveBookmarks(list) {
+            try {
+                localStorage.setItem(STORAGE_KEYS.bookmarks, JSON.stringify(list.slice(0, MAX_BOOKMARKS)));
+            } catch (e) {
+                console.warn('Bookmark save failed:', e);
+            }
+        }
+
+        // Enhanced icon refresh with error handling
+        let iconRefreshTimer = null;
+        function refreshIcons() {
+            if (iconRefreshTimer) return;
+            iconRefreshTimer = requestAnimationFrame(() => {
+                iconRefreshTimer = null;
+                try {
+                    if (window.lucide && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
+                } catch (e) {
+                    console.warn('Icon refresh failed:', e);
+                }
+            });
+        }
+
+        // Enhanced greeting with smooth transitions
+        function updateGreeting() {
+            const userName = localStorage.getItem(STORAGE_KEYS.username) || 'Friend';
+            const hour = new Date().getHours();
+            let greeting = "Hello";
+            let iconHtml = '<i data-lucide="hand-wave" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+
+            if (hour >= 5 && hour < 12) {
+                greeting = "Good Morning";
+                iconHtml = '<i data-lucide="sunrise" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else if (hour >= 12 && hour < 17) {
+                greeting = "Good Afternoon";
+                iconHtml = '<i data-lucide="sun" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else if (hour >= 17 && hour < 22) {
+                greeting = "Good Evening";
+                iconHtml = '<i data-lucide="sunset" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            } else {
+                greeting = "Good Night";
+                iconHtml = '<i data-lucide="moon" style="display: inline; width: 1.2em; height: 1.2em; margin-left: 0.3em;"></i>';
+            }
+
+            const greetingEl = document.getElementById("greeting");
+            
+            // Add updating animation
+            greetingEl.classList.add('updating');
+            
+            setTimeout(() => {
+                // Create the greeting with Lucide icon instead of emoji
+                greetingEl.innerHTML = `${greeting}, <span id="username"></span>${iconHtml}`;
+                
+                // Set the username text separately to avoid any rendering issues
+                const usernameEl = greetingEl.querySelector('#username');
+                if (usernameEl) {
+                    usernameEl.textContent = userName;
+                }
+                
+                greetingEl.classList.remove('loading', 'updating');
+                
+                // Refresh icons to make sure Lucide renders the new icon
+                refreshIcons();
+            }, 300);
+
+            // Enhanced username interaction
+            setTimeout(() => {
+                const nameSpan = document.getElementById("username");
+                if (nameSpan) {
+                    nameSpan.addEventListener("click", () => {
+                        const newName = prompt("What should I call you?", userName);
+                        if (newName && newName.trim()) {
+                            localStorage.setItem(STORAGE_KEYS.username, newName.trim());
+                            updateGreeting();
+                        }
+                    });
+                }
+            }, 400);
+        }
+
+        // Enhanced wallpaper system with preloading
+        const localWallpapers = Array.from({ length: 8 }, (_, i) => `wallpaper/bg${i + 1}.webp`);
+
+        async function pickLocalWallpaper() {
+            let idx = Number(localStorage.getItem(STORAGE_KEYS.wallpaperIndex) || 0);
+            const wallpaperUrl = localWallpapers[idx];
+            
+            const success = await bgPreloader.setBackground(wallpaperUrl);
+            if (success) {
+                localStorage.setItem(STORAGE_KEYS.wallpaperIndex, (idx + 1) % localWallpapers.length);
+            } else {
+                // Try fallback gradient
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                console.warn(`Failed to load wallpaper: ${wallpaperUrl}, using fallback`);
+            }
+        }
+
+        // Enhanced Unsplash wallpaper with preloading
+        async function pickUnsplashWallpaper() {
+            // Large collection of different Unsplash endpoints and categories
+            const unsplashUrls = [
+                // Nature & Landscapes
+                'https://source.unsplash.com/1920x1080/?nature,landscape',
+                'https://source.unsplash.com/1920x1080/?mountains,nature',
+                'https://source.unsplash.com/1920x1080/?forest,trees',
+                'https://source.unsplash.com/1920x1080/?ocean,water',
+                'https://source.unsplash.com/1920x1080/?sky,clouds',
+                'https://source.unsplash.com/1920x1080/?sunset,sunrise',
+                'https://source.unsplash.com/1920x1080/?beach,tropical',
+                'https://source.unsplash.com/1920x1080/?desert,sand',
+                
+                // Abstract & Minimal
+                'https://source.unsplash.com/1920x1080/?abstract,minimal',
+                'https://source.unsplash.com/1920x1080/?gradient,colorful',
+                'https://source.unsplash.com/1920x1080/?geometric,pattern',
+                'https://source.unsplash.com/1920x1080/?texture,material',
+                'https://source.unsplash.com/1920x1080/?dark,minimal',
+                'https://source.unsplash.com/1920x1080/?light,bright',
+                
+                // Urban & Architecture
+                'https://source.unsplash.com/1920x1080/?city,urban',
+                'https://source.unsplash.com/1920x1080/?architecture,building',
+                'https://source.unsplash.com/1920x1080/?street,night',
+                'https://source.unsplash.com/1920x1080/?modern,design',
+                
+                // Space & Science
+                'https://source.unsplash.com/1920x1080/?space,galaxy',
+                'https://source.unsplash.com/1920x1080/?stars,night',
+                'https://source.unsplash.com/1920x1080/?nebula,cosmos',
+                
+                // Technology
+                'https://source.unsplash.com/1920x1080/?technology,digital',
+                'https://source.unsplash.com/1920x1080/?computer,tech',
+                'https://source.unsplash.com/1920x1080/?code,programming'
+            ];
+            
+            // Add random parameter to avoid caching
+            const randomParam = `&t=${Date.now()}`;
+            const selectedUrl = unsplashUrls[Math.floor(Math.random() * unsplashUrls.length)] + randomParam;
+            
+            const success = await bgPreloader.setBackground(selectedUrl);
+            if (!success) {
+                console.warn('Primary Unsplash failed, trying alternative...');
+                await tryAlternativeUnsplash();
+            }
+        }
+
+        async function tryAlternativeUnsplash() {
+            // Large collection of specific high-quality Unsplash photos as backup
+            const backupUrls = [
+                // Nature & Landscapes
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format', // Mountain lake
+                'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop&auto=format', // Forest path
+                'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&h=1080&fit=crop&auto=format', // Mountain vista
+                'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1920&h=1080&fit=crop&auto=format', // Lake reflection
+                'https://images.unsplash.com/photo-1418065460487-3956c3043904?w=1920&h=1080&fit=crop&auto=format', // Forest mist
+                'https://images.unsplash.com/photo-1501436513145-30f24e19fcc4?w=1920&h=1080&fit=crop&auto=format', // Ocean waves
+                'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&h=1080&fit=crop&auto=format', // Mountain peaks
+                'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?w=1920&h=1080&fit=crop&auto=format', // Golden field
+                'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1920&h=1080&fit=crop&auto=format', // Snowy mountains
+                'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&h=1080&fit=crop&auto=format', // Desert landscape
+                
+                // Sunsets & Sunrises
+                'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=1920&h=1080&fit=crop&auto=format', // Beach sunset
+                'https://images.unsplash.com/photo-1464822759844-d150165c99fd?w=1920&h=1080&fit=crop&auto=format', // Mountain sunset
+                'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop&auto=format', // Lake sunrise
+                'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=1080&fit=crop&auto=format', // City sunset
+                
+                // Abstract & Minimal
+                'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=1920&h=1080&fit=crop&auto=format', // Gradient abstract
+                'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1920&h=1080&fit=crop&auto=format', // Blue abstract
+                'https://images.unsplash.com/photo-1552083375-1447ce00c827?w=1920&h=1080&fit=crop&auto=format', // Minimal landscape
+                'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&h=1080&fit=crop&auto=format', // Purple gradient
+                'https://images.unsplash.com/photo-1557682268-e3955ed5d83f?w=1920&h=1080&fit=crop&auto=format', // Orange gradient
+                'https://images.unsplash.com/photo-1557683316-973673baf926?w=1920&h=1080&fit=crop&auto=format', // Green gradient
+                
+                // Space & Cosmos
+                'https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=1920&h=1080&fit=crop&auto=format', // Galaxy
+                'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=1920&h=1080&fit=crop&auto=format', // Nebula
+                'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&h=1080&fit=crop&auto=format', // Starry night
+                'https://images.unsplash.com/photo-1484589065579-248aad0d8b13?w=1920&h=1080&fit=crop&auto=format', // Milky way
+                
+                // Urban & Architecture
+                'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1920&h=1080&fit=crop&auto=format', // City skyline
+                'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=1080&fit=crop&auto=format', // Modern building
+                'https://images.unsplash.com/photo-1444927714506-8492d94b5ba0?w=1920&h=1080&fit=crop&auto=format', // Bridge
+                'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&h=1080&fit=crop&auto=format', // Night city
+                
+                // Technology & Digital
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&auto=format', // Digital pattern
+                'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=1920&h=1080&fit=crop&auto=format', // Code screen
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&h=1080&fit=crop&auto=format', // Tech abstract
+                
+                // Dark themes
+                'https://images.unsplash.com/photo-1558021212-51b6ecfa0db9?w=1920&h=1080&fit=crop&auto=format', // Dark minimal
+                'https://images.unsplash.com/photo-1557682224-5b8590cd9ec5?w=1920&h=1080&fit=crop&auto=format', // Dark gradient
+                'https://images.unsplash.com/photo-1420227651490-6d0954909015?w=1920&h=1080&fit=crop&auto=format'  // Dark nature
+            ];
+            
+            const backupUrl = backupUrls[Math.floor(Math.random() * backupUrls.length)];
+            const success = await bgPreloader.setBackground(backupUrl);
+            if (!success) {
+                console.warn('All Unsplash options failed, falling back to local wallpapers');
+                await pickLocalWallpaper();
+            }
+        }
+
+        // Enhanced clock with ticker animations
+        let previousTime = '';
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours() % 12 || 12;
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+            const seconds = now.getSeconds();
+
+            const clockElement = document.getElementById('clock');
+            const newTime = `${hours}:${minutes} ${ampm}`;
+
+            if (clockElement.textContent !== newTime && previousTime !== '') {
+                // Create ticker effect for changing digits
+                const newTimeArray = newTime.split('');
+                const oldTimeArray = previousTime.split('');
+                
+                clockElement.innerHTML = newTimeArray.map((char, index) => {
+                    const isDigit = /\d/.test(char);
+                    const hasChanged = char !== oldTimeArray[index];
+                    const isColon = char === ':';
+                    
+                    let className = isDigit ? 'digit' : (isColon ? 'colon' : '');
+                    
+                    if (isDigit && hasChanged) {
+                        className += ' flip-animation';
+                        // Add random tick direction for visual interest
+                        if (Math.random() > 0.5) {
+                            className += ' tick-up';
+                        } else {
+                            className += ' tick-down';
+                        }
+                    }
+                    
+                    return `<span class="${className}">${char}</span>`;
+                }).join('');
+                
+                clockElement.classList.remove('loading');
+            } else if (previousTime === '') {
+                // Initial load
+                clockElement.innerHTML = newTime.split('').map(char => {
+                    const isDigit = /\d/.test(char);
+                    const isColon = char === ':';
+                    const className = isDigit ? 'digit' : (isColon ? 'colon' : '');
+                    return `<span class="${className}">${char}</span>`;
+                }).join('');
+                clockElement.classList.remove('loading');
+            }
+
+            previousTime = newTime;
+
+            // Clean up animation classes after animation completes
+            setTimeout(() => {
+                clockElement.querySelectorAll('.digit').forEach(digit => {
+                    digit.classList.remove('flip-animation', 'tick-up', 'tick-down');
+                });
+            }, 800);
+        }
+
+        // Enhanced quotes with categories and animations
+        const quotes = [
+            "The best time to plant a tree was 20 years ago. The second best time is now.",
+            "Your limitation—it's only your imagination.",
+            "Push yourself, because no one else is going to do it for you.",
+            "Great things never come from comfort zones.",
+            "Dream it. Wish it. Do it.",
+            "Success doesn't just find you. You have to go out and get it.",
+            "The harder you work for something, the greater you'll feel when you achieve it.",
+            "Don't stop when you're tired. Stop when you're done.",
+            "Wake up with determination. Go to bed with satisfaction.",
+            "Do something today that your future self will thank you for.",
+            "Little things make big days.",
+            "It's going to be hard, but hard does not mean impossible.",
+            "Don't wait for opportunity. Create it.",
+            "Sometimes we're tested not to show our weaknesses, but to discover our strengths.",
+            "The key to success is to focus on goals, not obstacles.",
+            "Dream bigger. Do bigger.",
+            "Don't be afraid to give up the good to go for the great.",
+            "The difference between ordinary and extraordinary is that little extra.",
+            "Challenges are what make life interesting and overcoming them is what makes life meaningful.",
+            "If you want to achieve excellence, you can get there today. As of this second, quit doing less-than-excellent work."
+        ];
+
+        function displayQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            const quoteEl = document.getElementById('quote');
+            
+            // Add updating animation
+            quoteEl.classList.add('updating');
+            
+            setTimeout(() => {
+                quoteEl.textContent = `"${quote}"`;
+                quoteEl.classList.remove('loading', 'updating');
+            }, 300);
+        }
+
+        // Enhanced search functionality
+        const engines = {
+            google: { action: 'https://www.google.com/search', icon: 'https://www.google.com/favicon.ico', name: 'Google' },
+            duckduckgo: { action: 'https://duckduckgo.com/', icon: 'https://duckduckgo.com/favicon.ico', name: 'DuckDuckGo' },
+            brave: { action: 'https://search.brave.com/search', icon: 'https://brave.com/static-assets/images/brave-favicon.png', name: 'Brave' }
+        };
+
+        function initializeSearchEngine() {
+            const currentIcon = document.getElementById('currentEngineIcon');
+            const engineSelect = document.getElementById('engineSelect');
+            const form = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchInput');
+
+            // Engine switcher with enhanced animations
+            currentIcon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                engineSelect.classList.toggle('show');
+            });
+
+            // Close engine selector when clicking outside
+            document.addEventListener('click', () => {
+                engineSelect.classList.remove('show');
+            });
+
+            engineSelect.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            engineSelect.querySelectorAll('.engine-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const engineKey = icon.dataset.action;
+                    const engine = engines[engineKey];
+                    
+                    // Add selection animation
+                    currentIcon.style.transform = 'scale(0.8) rotate(180deg)';
+                    
+                    setTimeout(() => {
+                        form.action = engine.action;
+                        currentIcon.src = engine.icon;
+                        searchInput.placeholder = `Search with ${engine.name}`;
+                        currentIcon.style.transform = 'scale(1) rotate(0deg)';
+                    }, 200);
+                    
+                    engineSelect.classList.remove('show');
+                });
+            });
+
+            // Set initial placeholder
+            searchInput.placeholder = "Search with Google";
+
+            // Search focus effects
+            searchInput.addEventListener('focus', () => {
+                document.body.classList.add('search-focused');
+                document.querySelector('.search-bar').classList.add('focused');
+                if (searchInput.value.trim()) {
+                    showSuggestions(searchInput.value.trim());
+                }
+            });
+
+            searchInput.addEventListener('blur', (e) => {
+                // Delay to allow suggestion clicks
+                setTimeout(() => {
+                    document.body.classList.remove('search-focused');
+                    document.querySelector('.search-bar').classList.remove('focused');
+                    hideSuggestions();
+                }, 150);
+            });
+
+            // Search suggestions
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                if (query.length > 1) {
+                    showSuggestions(query);
+                } else {
+                    hideSuggestions();
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', (e) => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    saveToSearchHistory(query);
+                }
+            });
+        }
+
+        // Search suggestions and history
+        let searchHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.searchHistory) || '[]');
+
+        function saveToSearchHistory(query) {
+            if (!searchHistory.includes(query)) {
+                searchHistory.unshift(query);
+                searchHistory = searchHistory.slice(0, 10);
+                localStorage.setItem(STORAGE_KEYS.searchHistory, JSON.stringify(searchHistory));
+            }
+        }
+
+        function showSuggestions(query) {
+            const suggestions = [];
+            const suggestionsEl = document.getElementById('searchSuggestions');
+
+            // Add relevant search history
+            searchHistory
+                .filter(item => item.toLowerCase().includes(query.toLowerCase()))
+                .slice(0, 3)
+                .forEach(item => {
+                    suggestions.push({
+                        text: item,
+                        type: 'History',
+                        icon: 'clock'
+                    });
+                });
+
+            // Add common searches
+            const commonSearches = [
+                { text: 'weather forecast', icon: 'cloud' },
+                { text: 'news today', icon: 'newspaper' },
+                { text: 'translate', icon: 'languages' },
+                { text: 'calculator', icon: 'calculator' },
+                { text: 'maps', icon: 'map' }
+            ].filter(item => 
+                item.text.toLowerCase().includes(query.toLowerCase()) &&
+                !suggestions.some(s => s.text === item.text)
+            );
+
+            suggestions.push(...commonSearches.slice(0, 3));
+
+            if (suggestions.length > 0) {
+                suggestionsEl.innerHTML = suggestions.map(suggestion => `
+                    <div class="suggestion-item" onclick="selectSuggestion('${suggestion.text.replace(/'/g, "\\'")}')">
+                        <i data-lucide="${suggestion.icon}" class="icon"></i>
+                        <div class="text">${suggestion.text}</div>
+                        <div class="type">${suggestion.type || 'Suggestion'}</div>
+                    </div>
+                `).join('');
+                suggestionsEl.classList.add('show');
+                refreshIcons();
+            } else {
+                hideSuggestions();
+            }
+        }
+
+        function hideSuggestions() {
+            const suggestionsEl = document.getElementById('searchSuggestions');
+            suggestionsEl.classList.remove('show');
+            setTimeout(() => {
+                suggestionsEl.innerHTML = '';
+            }, 300);
+        }
+
+        function selectSuggestion(text) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = text;
+            searchInput.form.submit();
+        }
+
+        // Enhanced bookmark rendering with better icon handling
+        let bookmarks = loadBookmarks();
+
+        function addBookmarkPrompt() {
+            const input = prompt("Enter website URL (e.g., facebook.com):", "");
+            if (!input) return;
+            
+            const url = input.startsWith("http://") || input.startsWith("https://") 
+                ? input 
+                : `https://${input}`;
+
+            let hostname;
+            try {
+                hostname = new URL(url).hostname.replace("www.", "");
+            } catch {
+                alert("Please enter a valid URL");
+                return;
+            }
+
+            const name = prompt("Enter display name (optional):", "") || 
+                       hostname.charAt(0).toUpperCase() + hostname.slice(1);
+
+            const newBookmark = {
+                url,
+                name,
+                icon: `${new URL(url).origin}/favicon.ico`
+            };
+
+            bookmarks.push(newBookmark);
+            if (bookmarks.length > MAX_BOOKMARKS) {
+                bookmarks = bookmarks.slice(0, MAX_BOOKMARKS);
+            }
+            
+            saveBookmarks(bookmarks);
+            renderBookmarks();
+        }
+
+        async function renderBookmarks() {
+            bookmarks = loadBookmarks();
+            const container = document.getElementById('bookmarks');
+            container.innerHTML = "";
+
+            // Icon mapping for fallbacks
+            const iconMap = {
+                'github.com': 'github',
+                'mail.google.com': 'mail',
+                'youtube.com': 'youtube',
+                'reddit.com': 'message-square',
+                'twitter.com': 'twitter',
+                'facebook.com': 'facebook',
+                'instagram.com': 'instagram',
+                'linkedin.com': 'linkedin',
+                'netflix.com': 'play',
+                'spotify.com': 'music',
+                'discord.com': 'message-circle',
+                'twitch.tv': 'tv',
+                'amazon.com': 'shopping-cart',
+                'drive.google.com': 'folder'
+            };
+
+            for (let i = 0; i < Math.min(bookmarks.length, MAX_BOOKMARKS); i++) {
+                const bookmark = bookmarks[i];
+                const url = new URL(bookmark.url);
+                const hostname = url.hostname.replace('www.', '');
+                
+                const bookmarkEl = document.createElement('a');
+                bookmarkEl.href = bookmark.url;
+                bookmarkEl.className = 'bookmark';
+                bookmarkEl.target = '_self';
+                bookmarkEl.style.opacity = '0';
+                bookmarkEl.style.transform = 'translateY(20px)';
+                bookmarkEl.style.animation = `fadeInUp 0.5s ease forwards`;
+                bookmarkEl.style.animationDelay = `${i * 0.1}s`;
+                
+                // Create icon element
+                const iconEl = document.createElement('img');
+                iconEl.className = 'bookmark-icon';
+                iconEl.alt = bookmark.name;
+                iconEl.src = bookmark.icon;
+                
+                // Fallback to lucide icon if favicon fails
+                iconEl.onerror = function() {
+                    this.onerror = null;
+                    const fallbackIcon = iconMap[hostname] || 'globe';
+                    const iconContainer = document.createElement('div');
+                    iconContainer.className = 'bookmark-icon';
+                    iconContainer.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        background: rgba(255,255,255,0.1);
+                    `;
+                    iconContainer.innerHTML = `<i data-lucide="${fallbackIcon}" style="width: 20px; height: 20px;"></i>`;
+                    this.parentNode.replaceChild(iconContainer, this);
+                    refreshIcons();
+                };
+
+                const nameEl = document.createElement('span');
+                nameEl.className = 'bookmark-name';
+                nameEl.textContent = bookmark.name;
+
+                bookmarkEl.appendChild(iconEl);
+                bookmarkEl.appendChild(nameEl);
+
+                // Enhanced interactions
+                bookmarkEl.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = bookmark.url;
+                });
+
+                bookmarkEl.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    const action = confirm(`Edit "${bookmark.name}"?\nOK = Edit, Cancel = Delete`);
+                    
+                    if (action) {
+                        // Edit
+                        const newUrl = prompt("Edit URL:", bookmark.url);
+                        const newName = prompt("Edit Name:", bookmark.name);
+                        
+                        if (newUrl && newName !== null) {
+                            try {
+                                const updatedUrl = newUrl.startsWith("http") ? newUrl : "https://" + newUrl;
+                                bookmarks[i] = {
+                                    url: updatedUrl,
+                                    name: newName || new URL(updatedUrl).hostname.replace("www.", ""),
+                                    icon: `${new URL(updatedUrl).origin}/favicon.ico`
+                                };
+                                saveBookmarks(bookmarks);
+                                renderBookmarks();
+                            } catch {
+                                alert("Please enter a valid URL");
+                            }
+                        }
+                    } else {
+                        // Delete
+                        if (confirm(`Delete "${bookmark.name}"?`)) {
+                            bookmarks.splice(i, 1);
+                            saveBookmarks(bookmarks);
+                            renderBookmarks();
+                        }
+                    }
+                });
+
+                // Drag and drop for reordering
+                bookmarkEl.draggable = true;
+                bookmarkEl.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', i.toString());
+                    bookmarkEl.style.opacity = '0.5';
+                });
+
+                bookmarkEl.addEventListener('dragend', () => {
+                    bookmarkEl.style.opacity = '1';
+                });
+
+                bookmarkEl.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+
+                bookmarkEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    const toIndex = i;
+                    
+                    if (fromIndex !== toIndex) {
+                        const [movedBookmark] = bookmarks.splice(fromIndex, 1);
+                        bookmarks.splice(toIndex, 0, movedBookmark);
+                        saveBookmarks(bookmarks);
+                        renderBookmarks();
+                    }
+                });
+
+                container.appendChild(bookmarkEl);
+            }
+
+            // Add bookmark button
+            if (bookmarks.length < MAX_BOOKMARKS) {
+                const addButton = document.createElement('div');
+                addButton.className = 'bookmark-add';
+                addButton.innerHTML = '+';
+                addButton.title = 'Add bookmark';
+                addButton.style.opacity = '0';
+                addButton.style.transform = 'translateY(20px)';
+                addButton.style.animation = `fadeInUp 0.5s ease forwards`;
+                addButton.style.animationDelay = `${bookmarks.length * 0.1}s`;
+                addButton.addEventListener('click', addBookmarkPrompt);
+                container.appendChild(addButton);
+            }
+
+            refreshIcons();
+        }
+
+        // Enhanced weather widget
+        function initWeather() {
+            const weatherEl = document.getElementById('weather');
+            if (!weatherEl) return;
+
+            weatherEl.innerHTML = '<div class="loading">Loading weather...</div>';
+
+            function mapWeatherCode(code) {
+                const weatherCodes = {
+                    0: 'sun',
+                    1: 'cloud-sun', 2: 'cloud-sun', 3: 'cloud',
+                    45: 'cloud-fog', 48: 'cloud-fog',
+                    51: 'cloud-drizzle', 53: 'cloud-drizzle', 55: 'cloud-drizzle',
+                    56: 'cloud-drizzle', 57: 'cloud-drizzle',
+                    61: 'cloud-rain', 63: 'cloud-rain', 65: 'cloud-rain',
+                    66: 'cloud-rain-wind', 67: 'cloud-rain-wind',
+                    71: 'cloud-snow', 73: 'cloud-snow', 75: 'cloud-snow', 77: 'cloud-snow',
+                    80: 'cloud-rain-wind', 81: 'cloud-rain-wind', 82: 'cloud-rain-wind',
+                    85: 'cloud-snow', 86: 'cloud-snow',
+                    95: 'cloud-lightning', 96: 'cloud-lightning', 99: 'cloud-lightning'
+                };
+                return weatherCodes[code] || 'cloud';
+            }
+
+            // Get city name from coordinates using reverse geocoding
+            function getCityName(lat, lon) {
+                return fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                    .then(response => response.json())
+                    .then(data => {
+                        return data.city || data.locality || data.principalSubdivision || 'Local';
+                    })
+                    .catch(() => 'Local');
+            }
+
+            function fetchWeather(lat, lon, locationName = 'Local') {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days=3&timezone=auto`;
+                
+                // Get city name if coordinates are provided
+                const cityPromise = (lat && lon && locationName === 'Local') 
+                    ? getCityName(lat, lon) 
+                    : Promise.resolve(locationName);
+
+                Promise.all([fetch(url).then(r => r.json()), cityPromise])
+                    .then(([data, cityName]) => {
+                        if (!data.current || !data.daily) {
+                            throw new Error('Incomplete weather data');
+                        }
+
+                        const current = data.current;
+                        const daily = data.daily;
+                        const updateTime = new Date().toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        const forecastHtml = daily.time.slice(0, 3).map((dateStr, index) => {
+                            const date = new Date(dateStr + 'T00:00:00');
+                            const dayName = date.toLocaleDateString(undefined, { weekday: 'short' });
+                            const high = Math.round(daily.temperature_2m_max[index]);
+                            const low = Math.round(daily.temperature_2m_min[index]);
+                            const icon = mapWeatherCode(daily.weather_code[index]);
+                            
+                            return `
+                                <div class="forecast-day">
+                                    <div class="forecast-name">${dayName}</div>
+                                    <i data-lucide="${icon}" class="forecast-icon"></i>
+                                    <div class="forecast-range">${low}°/${high}°</div>
+                                </div>
+                            `;
+                        }).join('');
+
+                        weatherEl.innerHTML = `
+                            <div class="weather-header">
+                                <div class="weather-location">${cityName}</div>
+                                <div class="weather-update">${updateTime}</div>
+                            </div>
+                            <div class="weather-main">
+                                <i data-lucide="${mapWeatherCode(current.weather_code)}" class="weather-icon"></i>
+                                <div>
+                                    <div class="weather-temp-large">${Math.round(current.temperature_2m)}°C</div>
+                                    <div class="weather-wind">${Math.round(current.wind_speed_10m)} km/h</div>
+                                </div>
+                            </div>
+                            <div class="weather-forecast">
+                                ${forecastHtml}
+                            </div>
+                        `;
+
+                        weatherEl.classList.remove('loading');
+                        refreshIcons();
+                    })
+                    .catch(error => {
+                        console.error('Weather fetch failed:', error);
+                        weatherEl.innerHTML = `
+                            <div style="text-align: center; opacity: 0.7; font-size: 0.8rem;">
+                                Weather unavailable
+                            </div>
+                        `;
+                    });
+            }
+
+            // Get location and fetch weather
+            if (navigator.geolocation) {
+                const timeoutId = setTimeout(() => {
+                    fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+                }, 5000);
+
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        clearTimeout(timeoutId);
+                        fetchWeather(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            'Local'
+                        );
+                    },
+                    () => {
+                        clearTimeout(timeoutId);
+                        fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 4000,
+                        maximumAge: 600000
+                    }
+                );
+            } else {
+                fetchWeather(32.0853, 34.7818, 'Tel Aviv'); // Fallback
+            }
+        }
+
+        // Keyboard shortcuts
+        function initKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Focus search with '/' or 'Ctrl+K'
+                if ((e.key === '/' || (e.ctrlKey && e.key === 'k')) && 
+                    !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+                
+                // Add bookmark with 'Ctrl+B'
+                if (e.ctrlKey && e.key === 'b' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    addBookmarkPrompt();
+                }
+                
+                // Open settings with 'Ctrl+,'
+                if (e.ctrlKey && e.key === ',' && !e.target.matches('input, textarea')) {
+                    e.preventDefault();
+                    document.getElementById('settingsOverlay').classList.add('show');
+                    refreshIcons();
+                }
+            });
+        }
+
+        // Onboarding functionality
+        function initOnboarding() {
+            const ONBOARDING_KEY = 'betterHomeOnboardingComplete';
+            const overlay = document.getElementById('onboardingOverlay');
+            const skipBtn = document.getElementById('onboardingSkip');
+            const completeBtn = document.getElementById('onboardingComplete');
+            const browserItems = document.querySelectorAll('.browser-item');
+            
+            // Check if onboarding has been completed
+            const isFirstVisit = !localStorage.getItem(ONBOARDING_KEY);
+            
+            if (isFirstVisit && overlay) {
+                // Show onboarding after a short delay
+                setTimeout(() => {
+                    overlay.classList.add('show');
+                    refreshIcons();
+                }, 1500);
+            }
+            
+            // Browser accordion functionality
+            browserItems.forEach(item => {
+                const header = item.querySelector('.browser-header');
+                if (header) {
+                    header.addEventListener('click', () => {
+                        // Close other items
+                        browserItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('active');
+                            }
+                        });
+                        
+                        // Toggle current item
+                        item.classList.toggle('active');
+                    });
+                }
+            });
+            
+            // Skip button
+            if (skipBtn) {
+                skipBtn.addEventListener('click', () => {
+                    closeOnboarding();
+                });
+            }
+            
+            // Complete button
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    closeOnboarding();
+                });
+            }
+            
+            // Close onboarding function
+            function closeOnboarding() {
+                overlay.classList.remove('show');
+                localStorage.setItem(ONBOARDING_KEY, 'true');
+                
+                // Remove overlay after animation
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 600);
+            }
+            
+            // Also close with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('show')) {
+                    closeOnboarding();
+                }
+            });
+            
+            // Detect browser and highlight the relevant one
+            function detectBrowser() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                let detectedBrowser = null;
+                
+                if (userAgent.includes('brave')) {
+                    detectedBrowser = 'brave';
+                } else if (userAgent.includes('opr') || userAgent.includes('opera')) {
+                    detectedBrowser = 'opera';
+                } else if (userAgent.includes('edg')) {
+                    detectedBrowser = 'edge';
+                } else if (userAgent.includes('firefox')) {
+                    detectedBrowser = 'firefox';
+                } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+                    detectedBrowser = 'safari';
+                } else if (userAgent.includes('chrome')) {
+                    detectedBrowser = 'chrome';
+                }
+                
+                if (detectedBrowser) {
+                    const browserItem = document.querySelector(`[data-browser="${detectedBrowser}"]`);
+                    if (browserItem) {
+                        // Auto-expand detected browser
+                        setTimeout(() => {
+                            browserItem.classList.add('active');
+                            // Move it to the top
+                            const parent = browserItem.parentNode;
+                            parent.insertBefore(browserItem, parent.firstChild);
+                        }, 800);
+                    }
+                }
+            }
+            
+            if (isFirstVisit) {
+                detectBrowser();
+            }
+        }
+
+        // Initialize everything with background preloading
+        async function init() {
+            // Start background preloading immediately
+            bgPreloader.preloadNextWallpapers();
+            
+            // Initialize settings first
+            initSettings();
+            initImportExport();
+            
+            // Initialize UI components
+            updateGreeting();
+            displayQuote();
+            updateClock();
+            initializeSearchEngine();
+            renderBookmarks();
+            initWeather();
+            initKeyboardShortcuts();
+            initOnboarding(); // Add onboarding initialization
+            
+            // Choose and set wallpaper with preloading
+            if (isOnline) {
+                await pickUnsplashWallpaper();
+            } else {
+                await pickLocalWallpaper();
+            }
+            
+            // Update clock every second
+            setInterval(updateClock, 1000);
+            
+            // Update greeting every minute
+            setInterval(updateGreeting, 60000);
+        }
+
+        // Start when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+/* Weather Widget styles */
+
+.weather-widget {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    transition: var(--spring-transition);
+    min-width: 250px;
+    z-index: 10;
+}
+
+.weather-widget:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+
+.weather-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.8rem;
+}
+
+.weather-location {
+    font-weight: 600;
+}
+
+.weather-update {
+    opacity: 0.6;
+}
+
+.weather-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.weather-icon {
+    font-size: 2rem;
+}
+
+.weather-temp-large {
+    font-size: 1.8rem;
+    font-weight: 300;
+}
+
+.weather-wind {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.weather-forecast {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+    flex: 1;
+}
+
+.forecast-icon {
+    font-size: 1.2rem;
+    margin: 4px 0;
+}
+
+/* Responsive - hide on smaller screens */
+@media (max-width: 1200px) {
+    .weather-widget {
+        display: none;
+    }
+}

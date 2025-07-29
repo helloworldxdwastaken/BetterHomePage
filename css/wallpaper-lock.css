@@ -1,0 +1,61 @@
+/* Wallpaper Lock Button styles */
+
+.wallpaper-lock-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--spring-transition);
+    z-index: 10;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    opacity: 0.7;
+}
+
+.wallpaper-lock-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    opacity: 1;
+}
+
+.wallpaper-lock-btn.locked {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(59, 130, 246, 0.4);
+    opacity: 1;
+}
+
+.wallpaper-lock-btn.locked:hover {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+/* Ensure icon size */
+.wallpaper-lock-btn i {
+    width: 20px;
+    height: 20px;
+}
+
+/* Hide on mobile to avoid clutter */
+@media (max-width: 768px) {
+    .wallpaper-lock-btn {
+        width: 44px;
+        height: 44px;
+        bottom: 80px;
+        left: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .wallpaper-lock-btn {
+        display: none;
+    }
+}

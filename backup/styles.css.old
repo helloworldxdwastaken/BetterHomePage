@@ -1,0 +1,513 @@
+/* Dark-only mode enforced; removed light theme media query */
+
+/* Styles moved from index.html */
+:root {
+    --bg-color: #1e1e1e;
+    --fg-color: #ffffff;
+}
+
+html {
+    color-scheme: dark;
+}
+
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: var(--bg-color);
+    color: var(--fg-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    z-index: 0;
+}
+
+/* semi–transparent overlay to darken wallpaper */
+body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.50);
+    /* adjust opacity as desired */
+    pointer-events: none;
+    /* let clicks through */
+    z-index: 0;
+    /* below page content */
+    transition: background-color 0.5s ease;
+}
+
+body.search-focused::before {
+    background: rgba(0, 0, 0, 0.75);
+}
+
+body>* {
+    position: relative;
+    z-index: 1;
+}
+
+h1 {
+    font-size: 2.8rem;
+    font-weight: 600;
+    /* semi‑bold */
+}
+
+#greeting {
+    width: 100%;
+    text-align: center;
+}
+
+.quote {
+    font-style: italic;
+    opacity: 0.7;
+    margin-bottom: 10px;
+    font-weight: 600;
+    /* semi‑bold */
+}
+
+.clock {
+    font-size: 9rem;
+    margin: 10px 0;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.clock .digit {
+    display: inline-block;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.clock .digit.changing {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    margin-top: 20vh;
+    /* push it down from the clock */
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar.focused {
+    z-index: 20;
+    transform: scale(1.05);
+}
+
+.search-bar .engine-wrapper .engine-icon {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar.focused .engine-wrapper .engine-icon {
+    transform: scale(1.12);
+}
+
+.search-bar button {
+    background: #ffffff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    color: #000;
+    font-weight: 700;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-left: 10px;
+}
+
+.engine-select {
+    position: absolute;
+    right: 0;
+    flex-direction: column;
+    align-items: center;
+    background-color: #333;
+    padding: 5px;
+    border-radius: 6px;
+    display: none;
+    z-index: 10;
+    opacity: 0;
+    transform: scale(0.85) translateY(-10px);
+    pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.engine-select.show {
+    display: flex;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.engine-select .engine-icon {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.engine-select.show .engine-icon {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.engine-select.show .engine-icon:nth-child(1) {
+    transition-delay: 0.05s;
+}
+
+.engine-select.show .engine-icon:nth-child(2) {
+    transition-delay: 0.13s;
+}
+
+.engine-select.show .engine-icon:nth-child(3) {
+    transition-delay: 0.21s;
+}
+
+.engine-select.hiding {
+    opacity: 0;
+    transform: scale(0.85) translateY(-10px);
+    pointer-events: none;
+}
+
+.engine-select.hiding .engine-icon {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition-delay: 0s !important;
+}
+
+.engine-wrapper {
+    position: relative;
+    margin-left: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.engine-icon {
+    height: 35px;
+    width: 35px;
+    margin: 5px 0;
+    opacity: 0.6;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: opacity 0.3s;
+}
+
+.engine-icon.active,
+.engine-icon:hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+input {
+    padding: 10px 16px;
+    border-radius: 24px;
+    border: none;
+    font-size: 1rem;
+    width: 400px; /* fixed length */
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    transition: background 0.25s ease, box-shadow 0.25s ease, outline-color 0.25s ease;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+input:focus {
+    outline: 2px solid rgba(255,255,255,0.35);
+    background: rgba(255,255,255,0.22);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+}
+
+.bookmarks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.bookmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #ffffff;
+    text-decoration: none;
+    width: 70px;
+    font-size: 0.8rem;
+}
+
+.bookmark-add {
+    width: 70px;
+    height: 70px;
+    border: 2px dashed #888;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+
+.bookmark-add:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+.bookmark img {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 5px;
+}
+
+.bookmark-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.bookmark-name {
+    display: block;
+    margin-top: 2px;
+    word-break: break-word;
+    font-weight: 500;
+    /* semi‑bold */
+}
+
+/* Weather container styling */
+#weather.bookmark {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 20px;
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    transition: all 0.3s ease;
+    transform: scale(1);
+}
+
+#weather.bookmark:hover {
+    transform: scale(1.02);
+    filter: brightness(1.05);
+}
+
+/* Hide weather addon on viewports narrower than 1000px */
+@media (max-width: 1000px) {
+    #weather.bookmark {
+        display: none;
+    }
+}
+
+/* Enhanced mobile-friendly styles */
+@media (max-width: 600px) {
+
+    /* Body adjustments */
+    body {
+        padding: 10px 5px;
+        /* height: auto; */
+        min-height: 100vh;
+        justify-content: flex-start;
+    }
+
+    /* Greeting */
+    #greeting {
+        font-size: 1.8rem;
+        margin-top: 20px;
+    }
+
+    /* Quote */
+    .quote {
+        font-size: 0.9rem;
+        margin: 5px 0;
+    }
+
+    /* Clock */
+    .clock {
+        font-size: 4rem;
+        margin: 5px 0;
+    }
+
+    /* Search bar */
+    .search-bar {
+        margin: 15px 0;
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    input {
+        width: 100%;
+        max-width: none;
+    }
+
+    .engine-wrapper {
+        margin: 10px 0;
+        justify-content: center;
+    }
+
+    /* Bookmarks grid */
+    .bookmarks {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 12px;
+        margin-top: 15px;
+        max-height: none;
+        width: 100%;
+        padding: 0 10px;
+    }
+
+    .bookmark,
+    .bookmark-add {
+        width: 60px;
+    }
+
+    .bookmark-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .bookmark-name {
+        font-size: 0.7rem;
+    }
+
+    /* Hide tools pane completely */
+    .tools {
+        display: none;
+    }
+}
+
+
+/* Tools pane positioning and weather widget style */
+.tools {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    /* background: rgba(0, 0, 0, 0.5); */
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#username {
+    cursor: pointer;
+}
+
+#username:hover {
+    text-decoration: underline dashed;
+}
+
+#weather {
+    font-size: 0.9rem;
+}
+
+.weather-icon {
+    font-size: 2rem;
+    margin-bottom: 5px;
+}
+
+.weather-temp,
+.weather-wind {
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.weather-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+    text-align: center;
+    gap: 4px;
+}
+
+.weather-location {
+    font-weight: bold;
+}
+
+.weather-update {
+    opacity: 0.7;
+}
+
+.weather-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.weather-temp-large {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.weather-forecast {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    /* prevent wrapping so items stay side by side */
+    flex-wrap: nowrap;
+    padding: 0 4px;
+}
+
+.forecast-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.7rem;
+}
+
+.forecast-name {
+    margin-bottom: 2px;
+}
+
+.forecast-icon {
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+
+.forecast-range {}
+
+
+.bookmark-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.top-row,
+.bottom-row {
+    width: 100%;
+    justify-content: center;
+}

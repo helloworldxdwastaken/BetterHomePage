@@ -1,0 +1,207 @@
+/* Search Bar and Suggestions */
+
+.search-container {
+    position: relative;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 500px;
+}
+
+.search-bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 6px;
+    box-shadow: 
+        0 8px 32px rgba(0,0,0,0.3),
+        0 0 0 1px rgba(255,255,255,0.05) inset;
+    transition: var(--spring-transition);
+    width: 100%;
+}
+
+#searchForm {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+}
+
+.search-bar.focused {
+    transform: scale(1.02);
+    box-shadow: 
+        0 20px 40px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(59, 130, 246, 0.3) inset,
+        0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+input {
+    padding: 14px 24px;
+    padding-right: 60px;
+    border: none;
+    font-size: 1rem;
+    width: 100%;
+    background: transparent;
+    color: #fff;
+    font-family: inherit;
+    font-weight: 400;
+    outline: none;
+    border-radius: 50px;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+/* Engine selector */
+.engine-wrapper {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 50px;
+}
+
+.engine-wrapper:hover {
+    transform: translateY(-50%) scale(1.05);
+    background: rgba(255,255,255,0.05);
+    transform-origin: center;
+}
+
+.engine-select {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 8px;
+    display: none;
+    flex-direction: row;
+    gap: 8px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    z-index: 200;
+    opacity: 0;
+    transition: var(--spring-transition);
+}
+
+.engine-select.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-20px) scale(0.8);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(-50%) translateX(5px) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0) scale(1);
+    }
+}
+
+.engine-icon {
+    height: 28px;
+    width: 28px;
+    border-radius: 8px;
+    transition: var(--spring-transition);
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.engine-icon:hover,
+.engine-icon.active {
+    opacity: 1;
+    transform: scale(1.2) rotate(5deg);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.engine-icon:active {
+    transform: scale(0.95);
+}
+
+/* Search suggestions */
+.search-suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--spring-transition);
+    z-index: 150;
+}
+
+.search-suggestions.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 16px;
+    margin: 6px;
+}
+
+.suggestion-item:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateX(5px);
+}
+
+.suggestion-item .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.7;
+}
+
+.suggestion-item .text {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.suggestion-item .type {
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-container {
+        width: 100%;
+        padding: 0 20px;
+        max-width: 100%;
+    }
+}
