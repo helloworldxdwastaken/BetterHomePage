@@ -947,6 +947,251 @@
             display: none !important;
         }
 
+        /* Onboarding overlay styles */
+        .onboarding-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--spring-transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .onboarding-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .onboarding-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            transform: scale(0.8) translateY(40px) rotate(-5deg);
+            transition: var(--spring-transition);
+            animation: onboardingBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes onboardingBounce {
+            0% {
+                transform: scale(0.8) translateY(40px) rotate(-5deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.05) translateY(-10px) rotate(1deg);
+            }
+            100% {
+                transform: scale(1) translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .onboarding-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .onboarding-header h2 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .onboarding-skip {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: var(--spring-transition);
+            font-size: 0.9rem;
+        }
+
+        .onboarding-skip:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .onboarding-content {
+            padding: 24px;
+        }
+
+        .onboarding-intro {
+            text-align: center;
+            margin-bottom: 32px;
+            opacity: 0.9;
+        }
+
+        .onboarding-intro p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .browser-instructions {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .browser-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: var(--spring-transition);
+            cursor: pointer;
+        }
+
+        .browser-item:hover {
+            background: rgba(255,255,255,0.08);
+            transform: translateX(5px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .browser-item.active {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .browser-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .browser-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .browser-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .browser-expand {
+            transition: var(--spring-transition);
+        }
+
+        .browser-item.active .browser-expand {
+            transform: rotate(90deg);
+        }
+
+        .browser-steps {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .browser-item.active .browser-steps {
+            max-height: 500px;
+            margin-top: 16px;
+        }
+
+        .step {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            min-width: 24px;
+            height: 24px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .step-text {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .step-text code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+
+        .onboarding-footer {
+            padding: 24px;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+        }
+
+        .onboarding-complete {
+            padding: 14px 32px;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--spring-transition);
+            font-family: inherit;
+        }
+
+        .onboarding-complete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        }
+
+        .onboarding-complete:active {
+            transform: scale(0.98);
+        }
+
+        /* Mobile responsiveness for onboarding */
+        @media (max-width: 768px) {
+            .onboarding-panel {
+                max-width: 100%;
+                margin: 10px;
+            }
+
+            .browser-name {
+                font-size: 1rem;
+            }
+
+            .step-text {
+                font-size: 0.85rem;
+            }
+        }
+
         /* Additional animations */
         @keyframes digitFlip {
             0% {
@@ -1053,6 +1298,214 @@
         <div class="bg-loader"></div>
     </div>
 
+    <!-- Onboarding Overlay -->
+    <div class="onboarding-overlay" id="onboardingOverlay">
+        <div class="onboarding-panel">
+            <div class="onboarding-header">
+                <h2>Welcome to BetterHome! 🚀</h2>
+                <button class="onboarding-skip" id="onboardingSkip">Skip</button>
+            </div>
+            
+            <div class="onboarding-content">
+                <div class="onboarding-intro">
+                    <p>Make BetterHome your default homepage to enjoy a beautiful new tab experience every time you open your browser.</p>
+                </div>
+                
+                <div class="browser-instructions" id="browserInstructions">
+                    <!-- Brave Browser -->
+                    <div class="browser-item" data-browser="brave">
+                        <div class="browser-header">
+                            <img src="https://brave.com/static-assets/images/brave-favicon.png" class="browser-icon" alt="Brave">
+                            <span class="browser-name">Brave Browser</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Go to <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Get started" section, select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opera Browser -->
+                    <div class="browser-item" data-browser="opera">
+                        <div class="browser-header">
+                            <img src="https://www.opera.com/favicon.ico" class="browser-icon" alt="Opera">
+                            <span class="browser-name">Opera Browser</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the Opera menu in the top-left corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code> (or press Alt+P)</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">Under "On startup", select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chrome Browser -->
+                    <div class="browser-item" data-browser="chrome">
+                        <div class="browser-header">
+                            <img src="https://www.google.com/chrome/static/images/chrome-logo-m100.svg" class="browser-icon" alt="Chrome">
+                            <span class="browser-name">Google Chrome</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the three dots menu (⋮) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "On startup" section, select <code>Open a specific page or set of pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Click <code>Add a new page</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Enter the URL of this page and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Firefox Browser -->
+                    <div class="browser-item" data-browser="firefox">
+                        <div class="browser-header">
+                            <img src="https://www.mozilla.org/media/img/favicons/firefox/browser/favicon.625a3bba8445.ico" class="browser-icon" alt="Firefox">
+                            <span class="browser-name">Mozilla Firefox</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the menu button (☰) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Home" panel, next to "Homepage and new windows", select <code>Custom URLs...</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Enter the URL of this page</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Make sure "Homepage and new windows" is also selected for "New tabs"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Safari Browser -->
+                    <div class="browser-item" data-browser="safari">
+                        <div class="browser-header">
+                            <img src="https://www.apple.com/favicon.ico" class="browser-icon" alt="Safari">
+                            <span class="browser-name">Safari</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">From the Safari menu, choose <code>Preferences</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Click the <code>General</code> tab</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">In the "Homepage" field, enter the URL of this page</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">For "New windows open with", choose <code>Homepage</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">For "New tabs open with", choose <code>Homepage</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edge Browser -->
+                    <div class="browser-item" data-browser="edge">
+                        <div class="browser-header">
+                            <img src="https://www.microsoft.com/favicon.ico" class="browser-icon" alt="Edge">
+                            <span class="browser-name">Microsoft Edge</span>
+                            <i data-lucide="chevron-right" class="browser-expand"></i>
+                        </div>
+                        <div class="browser-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-text">Click the three dots menu (⋯) in the top-right corner</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-text">Select <code>Settings</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-text">Click <code>Start, home, and new tabs</code> in the left sidebar</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-text">Under "When Edge starts", select <code>Open these pages</code></div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">5</div>
+                                <div class="step-text">Click <code>Add a new page</code>, enter the URL, and click <code>Add</code></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="onboarding-footer">
+                <button class="onboarding-complete" id="onboardingComplete">Got it! Let's start</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Weather Widget on Right Side -->
     <div class="weather-widget" id="weatherWidget">
         <div id="weather" class="loading">Loading weather...</div>
@@ -1127,6 +1580,13 @@
                                 Import Settings
                             </label>
                         </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <button class="setting-btn" id="showOnboardingBtn">
+                            <i data-lucide="info"></i>
+                            Show Setup Instructions
+                        </button>
                     </div>
                     
                     <div class="setting-item">
@@ -1451,6 +1911,7 @@
             const weatherToggle = document.getElementById('weatherToggle');
             const quoteToggle = document.getElementById('quoteToggle');
             const clearDataBtn = document.getElementById('clearDataBtn');
+            const showOnboardingBtn = document.getElementById('showOnboardingBtn');
 
             // Set current values
             if (fontSelect) fontSelect.value = settings.fontFamily;
@@ -1500,6 +1961,22 @@
             createToggleHandler(weatherToggle, 'weatherEnabled');
             createToggleHandler(quoteToggle, 'quoteEnabled');
 
+            // Show onboarding button
+            if (showOnboardingBtn) {
+                showOnboardingBtn.addEventListener('click', () => {
+                    closeSettings();
+                    // Show onboarding overlay
+                    const onboardingOverlay = document.getElementById('onboardingOverlay');
+                    if (onboardingOverlay) {
+                        onboardingOverlay.style.display = 'flex';
+                        setTimeout(() => {
+                            onboardingOverlay.classList.add('show');
+                            refreshIcons();
+                        }, 100);
+                    }
+                });
+            }
+            
             // Clear data
             if (clearDataBtn) {
                 clearDataBtn.addEventListener('click', () => {
@@ -2359,6 +2836,113 @@
             });
         }
 
+        // Onboarding functionality
+        function initOnboarding() {
+            const ONBOARDING_KEY = 'betterHomeOnboardingComplete';
+            const overlay = document.getElementById('onboardingOverlay');
+            const skipBtn = document.getElementById('onboardingSkip');
+            const completeBtn = document.getElementById('onboardingComplete');
+            const browserItems = document.querySelectorAll('.browser-item');
+            
+            // Check if onboarding has been completed
+            const isFirstVisit = !localStorage.getItem(ONBOARDING_KEY);
+            
+            if (isFirstVisit && overlay) {
+                // Show onboarding after a short delay
+                setTimeout(() => {
+                    overlay.classList.add('show');
+                    refreshIcons();
+                }, 1500);
+            }
+            
+            // Browser accordion functionality
+            browserItems.forEach(item => {
+                const header = item.querySelector('.browser-header');
+                if (header) {
+                    header.addEventListener('click', () => {
+                        // Close other items
+                        browserItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('active');
+                            }
+                        });
+                        
+                        // Toggle current item
+                        item.classList.toggle('active');
+                    });
+                }
+            });
+            
+            // Skip button
+            if (skipBtn) {
+                skipBtn.addEventListener('click', () => {
+                    closeOnboarding();
+                });
+            }
+            
+            // Complete button
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    closeOnboarding();
+                });
+            }
+            
+            // Close onboarding function
+            function closeOnboarding() {
+                overlay.classList.remove('show');
+                localStorage.setItem(ONBOARDING_KEY, 'true');
+                
+                // Remove overlay after animation
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 600);
+            }
+            
+            // Also close with ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('show')) {
+                    closeOnboarding();
+                }
+            });
+            
+            // Detect browser and highlight the relevant one
+            function detectBrowser() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                let detectedBrowser = null;
+                
+                if (userAgent.includes('brave')) {
+                    detectedBrowser = 'brave';
+                } else if (userAgent.includes('opr') || userAgent.includes('opera')) {
+                    detectedBrowser = 'opera';
+                } else if (userAgent.includes('edg')) {
+                    detectedBrowser = 'edge';
+                } else if (userAgent.includes('firefox')) {
+                    detectedBrowser = 'firefox';
+                } else if (userAgent.includes('safari') && !userAgent.includes('chrome')) {
+                    detectedBrowser = 'safari';
+                } else if (userAgent.includes('chrome')) {
+                    detectedBrowser = 'chrome';
+                }
+                
+                if (detectedBrowser) {
+                    const browserItem = document.querySelector(`[data-browser="${detectedBrowser}"]`);
+                    if (browserItem) {
+                        // Auto-expand detected browser
+                        setTimeout(() => {
+                            browserItem.classList.add('active');
+                            // Move it to the top
+                            const parent = browserItem.parentNode;
+                            parent.insertBefore(browserItem, parent.firstChild);
+                        }, 800);
+                    }
+                }
+            }
+            
+            if (isFirstVisit) {
+                detectBrowser();
+            }
+        }
+
         // Initialize everything with background preloading
         async function init() {
             // Start background preloading immediately
@@ -2376,6 +2960,7 @@
             renderBookmarks();
             initWeather();
             initKeyboardShortcuts();
+            initOnboarding(); // Add onboarding initialization
             
             // Choose and set wallpaper with preloading
             if (isOnline) {
