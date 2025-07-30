@@ -2,7 +2,7 @@
 
 A beautiful, customizable homepage with a modular architecture that makes it easy to add new widgets and features.
 
-![Preview](preview.png)
+![Preview](preview.gif)
 
 ## 🎨 Features
 
