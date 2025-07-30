@@ -98,6 +98,8 @@ export function initSettings() {
     const fontSelect = document.getElementById('fontSelect');
     const weatherToggle = document.getElementById('weatherToggle');
     const quoteToggle = document.getElementById('quoteToggle');
+    const tempUnitSelect = document.getElementById('tempUnitSelect');
+    const timeFormatSelect = document.getElementById('timeFormatSelect');
     const clearDataBtn = document.getElementById('clearDataBtn');
     const showOnboardingBtn = document.getElementById('showOnboardingBtn');
 
@@ -105,6 +107,11 @@ export function initSettings() {
     if (fontSelect) fontSelect.value = settings.fontFamily;
     if (weatherToggle) weatherToggle.checked = settings.weatherEnabled;
     if (quoteToggle) quoteToggle.checked = settings.quoteEnabled;
+    if (tempUnitSelect) tempUnitSelect.value = settings.temperatureUnit || 'C';
+    if (timeFormatSelect) timeFormatSelect.value = settings.timeFormat || '12';
+
+    // Initialize tabs
+    initSettingsTabs();
 
     // Open settings with animation
     if (settingsBtn) {
@@ -132,6 +139,27 @@ export function initSettings() {
             const newSettings = { ...loadSettings(), fontFamily: fontSelect.value };
             saveSettings(newSettings);
             applySettings(newSettings);
+        });
+    }
+
+    // Time format change
+    if (timeFormatSelect) {
+        timeFormatSelect.addEventListener('change', () => {
+            const newSettings = { ...loadSettings(), timeFormat: timeFormatSelect.value };
+            saveSettings(newSettings);
+            // Clock will update on next tick
+        });
+    }
+
+    // Temperature unit change
+    if (tempUnitSelect) {
+        tempUnitSelect.addEventListener('change', () => {
+            const newSettings = { ...loadSettings(), temperatureUnit: tempUnitSelect.value };
+            saveSettings(newSettings);
+            // Refresh weather widget to show new units
+            if (window.initWeather) {
+                window.initWeather();
+            }
         });
     }
 
@@ -172,6 +200,15 @@ export function initSettings() {
         });
     }
 
+    // Donation link
+    const donateLink = document.querySelector('.setting-btn.donate');
+    if (donateLink) {
+        donateLink.addEventListener('click', (e) => {
+            e.stopPropagation();
+            refreshIcons();
+        });
+    }
+
     // ESC key to close settings
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && settingsOverlay.classList.contains('show')) {
@@ -181,4 +218,23 @@ export function initSettings() {
 
     // Initialize import/export
     initImportExport();
+}
+
+// Initialize settings tabs
+function initSettingsTabs() {
+    const tabs = document.querySelectorAll('.settings-tab');
+    const contents = document.querySelectorAll('.settings-tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.dataset.tab;
+            
+            // Update active states
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(`${targetTab}-tab`).classList.add('active');
+        });
+    });
 }

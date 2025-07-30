@@ -75,78 +75,161 @@
             </div>
             
             <div class="settings-content">
-                <div class="settings-section">
-                    <h3>Appearance</h3>
-                    
-                    <div class="setting-item">
-                        <label for="fontSelect">Font Family</label>
-                        <select id="fontSelect" class="setting-select">
-                            <option value="Inter">Inter (Default)</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Nunito">Nunito</option>
-                            <option value="Source Sans Pro">Source Sans Pro</option>
-                            <option value="Lato">Lato</option>
-                            <option value="Raleway">Raleway</option>
-                            <option value="Fira Sans">Fira Sans</option>
-                        </select>
-                    </div>
+                <!-- Donation Section -->
+                <div class="settings-donation">
+                    <div class="coffee-icon">☕</div>
+                    <p>Enjoying BetterHome? Consider supporting the developer!</p>
+                    <a href="https://coff.ee/tokyohouseparty" target="_blank" class="setting-btn donate">
+                        <i data-lucide="heart"></i>
+                        Buy me a coffee
+                    </a>
                 </div>
-
-                <div class="settings-section">
-                    <h3>Widgets</h3>
-                    
-                    <div class="setting-item">
-                        <label class="setting-toggle">
-                            <input type="checkbox" id="weatherToggle" checked>
-                            <span class="toggle-slider"></span>
-                            <span class="toggle-label">Weather Widget</span>
-                        </label>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <label class="setting-toggle">
-                            <input type="checkbox" id="quoteToggle" checked>
-                            <span class="toggle-slider"></span>
-                            <span class="toggle-label">Daily Quote</span>
-                        </label>
-                    </div>
+                
+                <!-- Settings Tabs -->
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="appearance">
+                        <i data-lucide="palette" style="width: 16px; height: 16px; display: inline-block; margin-right: 4px;"></i>
+                        Appearance
+                    </button>
+                    <button class="settings-tab" data-tab="features">
+                        <i data-lucide="toggle-left" style="width: 16px; height: 16px; display: inline-block; margin-right: 4px;"></i>
+                        Features
+                    </button>
+                    <button class="settings-tab" data-tab="data">
+                        <i data-lucide="database" style="width: 16px; height: 16px; display: inline-block; margin-right: 4px;"></i>
+                        Data
+                    </button>
                 </div>
-
-                <div class="settings-section">
-                    <h3>Data Management</h3>
-                    
-                    <div class="setting-item">
-                        <button class="setting-btn" id="exportDataBtn">
-                            <i data-lucide="download"></i>
-                            Export All Settings
-                        </button>
-                    </div>
-                    
-                    <div class="setting-item">
-                        <div class="file-input-wrapper">
-                            <input type="file" id="importFileInput" accept=".json">
-                            <label for="importFileInput" class="file-input-label">
-                                <i data-lucide="upload"></i>
-                                Import Settings
-                            </label>
+                
+                <!-- Appearance Tab -->
+                <div class="settings-tab-content active" id="appearance-tab">
+                    <div class="settings-section">
+                        <h3>
+                            <i data-lucide="type"></i>
+                            Typography
+                        </h3>
+                        <div class="setting-item">
+                            <label for="fontSelect">Font Family</label>
+                            <select id="fontSelect" class="setting-select">
+                                <option value="Inter">Inter (Default)</option>
+                                <option value="Roboto">Roboto</option>
+                                <option value="Open Sans">Open Sans</option>
+                                <option value="Poppins">Poppins</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Nunito">Nunito</option>
+                                <option value="Source Sans Pro">Source Sans Pro</option>
+                                <option value="Lato">Lato</option>
+                                <option value="Raleway">Raleway</option>
+                                <option value="Fira Sans">Fira Sans</option>
+                            </select>
                         </div>
                     </div>
                     
-                    <div class="setting-item">
-                        <button class="setting-btn" id="showOnboardingBtn">
-                            <i data-lucide="info"></i>
-                            Show Setup Instructions
-                        </button>
+                    <div class="settings-section">
+                        <h3>
+                            <i data-lucide="clock"></i>
+                            Time & Date
+                        </h3>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label for="timeFormatSelect">Time Format</label>
+                                <select id="timeFormatSelect" class="setting-select">
+                                    <option value="12">12-hour (AM/PM)</option>
+                                    <option value="24">24-hour</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="tempUnitSelect">Temperature Unit</label>
+                                <select id="tempUnitSelect" class="setting-select">
+                                    <option value="C">Celsius (°C)</option>
+                                    <option value="F">Fahrenheit (°F)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Features Tab -->
+                <div class="settings-tab-content" id="features-tab">
+                    <div class="settings-section">
+                        <h3>
+                            <i data-lucide="sparkles"></i>
+                            Widgets
+                        </h3>
+                        <div class="settings-grid">
+                            <div class="setting-item">
+                                <label class="setting-toggle compact">
+                                    <input type="checkbox" id="weatherToggle" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Weather Widget</span>
+                                </label>
+                                <p class="setting-description">Show weather forecast</p>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <label class="setting-toggle compact">
+                                    <input type="checkbox" id="quoteToggle" checked>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Daily Quote</span>
+                                </label>
+                                <p class="setting-description">Show inspirational quotes</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="setting-item">
-                        <button class="setting-btn danger" id="clearDataBtn">
+                    <div class="settings-section">
+                        <h3>
+                            <i data-lucide="info"></i>
+                            Help
+                        </h3>
+                        <div class="setting-item">
+                            <button class="setting-btn" id="showOnboardingBtn">
+                                <i data-lucide="book-open"></i>
+                                Show Setup Instructions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Tab -->
+                <div class="settings-tab-content" id="data-tab">
+                    <div class="settings-section">
+                        <h3>
+                            <i data-lucide="save"></i>
+                            Backup & Restore
+                        </h3>
+                        <div class="setting-item">
+                            <button class="setting-btn" id="exportDataBtn">
+                                <i data-lucide="download"></i>
+                                Export All Settings
+                            </button>
+                            <p class="setting-description">Download your settings, bookmarks, and preferences</p>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <div class="file-input-wrapper">
+                                <input type="file" id="importFileInput" accept=".json">
+                                <label for="importFileInput" class="file-input-label">
+                                    <i data-lucide="upload"></i>
+                                    Import Settings
+                                </label>
+                            </div>
+                            <p class="setting-description">Restore from a previous backup</p>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>
                             <i data-lucide="trash-2"></i>
-                            Clear All Data
-                        </button>
+                            Reset
+                        </h3>
+                        <div class="setting-item">
+                            <button class="setting-btn danger" id="clearDataBtn">
+                                <i data-lucide="alert-triangle"></i>
+                                Clear All Data
+                            </button>
+                            <p class="setting-description">This will reset everything to default. Cannot be undone!</p>
+                        </div>
                     </div>
                 </div>
             </div>

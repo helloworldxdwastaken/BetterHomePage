@@ -11,7 +11,9 @@ export const STORAGE_KEYS = {
 export const DEFAULT_SETTINGS = {
     fontFamily: 'Inter',
     weatherEnabled: true,
-    quoteEnabled: true
+    quoteEnabled: true,
+    temperatureUnit: 'C', // C for Celsius, F for Fahrenheit
+    timeFormat: '12' // 12 or 24 hour format
 };
 
 // Load settings

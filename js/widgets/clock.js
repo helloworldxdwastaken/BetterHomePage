@@ -1,19 +1,29 @@
 // Enhanced clock with ticker animations
+import { loadSettings } from '../core/storage.js';
+
 let previousTime = '';
 
 export function updateClock() {
     const now = new Date();
-    const hours = now.getHours() % 12 || 12;
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-    const seconds = now.getSeconds();
+    const settings = loadSettings();
+    let hours = now.getHours();
+    let timeString;
+    
+    if (settings.timeFormat === '24') {
+        // 24-hour format
+        timeString = `${hours.toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    } else {
+        // 12-hour format
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        timeString = `${hours}:${now.getMinutes().toString().padStart(2, '0')} ${ampm}`;
+    }
 
     const clockElement = document.getElementById('clock');
-    const newTime = `${hours}:${minutes} ${ampm}`;
 
-    if (clockElement.textContent !== newTime && previousTime !== '') {
+    if (clockElement.textContent !== timeString && previousTime !== '') {
         // Create ticker effect for changing digits
-        const newTimeArray = newTime.split('');
+        const newTimeArray = timeString.split('');
         const oldTimeArray = previousTime.split('');
         
         clockElement.innerHTML = newTimeArray.map((char, index) => {
@@ -39,7 +49,7 @@ export function updateClock() {
         clockElement.classList.remove('loading');
     } else if (previousTime === '') {
         // Initial load
-        clockElement.innerHTML = newTime.split('').map(char => {
+        clockElement.innerHTML = timeString.split('').map(char => {
             const isDigit = /\d/.test(char);
             const isColon = char === ':';
             const className = isDigit ? 'digit' : (isColon ? 'colon' : '');
@@ -48,7 +58,7 @@ export function updateClock() {
         clockElement.classList.remove('loading');
     }
 
-    previousTime = newTime;
+    previousTime = timeString;
 
     // Clean up animation classes after animation completes
     setTimeout(() => {

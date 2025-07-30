@@ -153,10 +153,16 @@
     cursor: pointer;
     margin-bottom: 0 !important;
     transition: var(--transition);
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    width: 100%;
 }
 
 .setting-toggle:hover {
     transform: translateX(5px);
+    background: rgba(255,255,255,0.08);
 }
 
 .setting-toggle input[type="checkbox"] {
@@ -196,6 +202,8 @@
 .toggle-label {
     font-size: 0.9rem;
     opacity: 0.9;
+    flex: 1;
+    text-align: left;
 }
 
 .setting-btn {
@@ -213,6 +221,7 @@
     transition: var(--spring-transition);
     width: 100%;
     justify-content: center;
+    text-decoration: none;
 }
 
 .setting-btn:hover {
@@ -232,6 +241,17 @@
 
 .setting-btn.danger:hover {
     background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.02);
+}
+
+.setting-btn.donate {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+}
+
+.setting-btn.donate:hover {
+    background: rgba(251, 191, 36, 0.2);
     transform: scale(1.02);
 }
 
@@ -268,4 +288,140 @@
 .file-input-label:hover {
     background: rgba(255,255,255,0.1);
     transform: scale(1.02);
+}
+
+/* Settings donation section */
+.settings-donation {
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.settings-donation p {
+    margin: 0 0 16px 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.settings-donation .coffee-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+/* Settings tabs */
+.settings-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 24px;
+    gap: 4px;
+    padding: 0 24px;
+}
+
+.settings-tab {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border-bottom: 2px solid transparent;
+    position: relative;
+}
+
+.settings-tab:hover {
+    color: rgba(255,255,255,0.8);
+}
+
+.settings-tab.active {
+    color: #fff;
+    border-bottom-color: var(--accent-color);
+}
+
+.settings-tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-tab-content.active {
+    display: block;
+}
+
+/* Settings sections with better spacing */
+.settings-section {
+    margin-bottom: 32px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.settings-section:last-child {
+    margin-bottom: 0;
+}
+
+.settings-section h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-section h3 i {
+    width: 20px;
+    height: 20px;
+    opacity: 0.6;
+}
+
+/* Improved setting items */
+.setting-item {
+    margin-bottom: 16px;
+    transition: var(--transition);
+}
+
+.setting-item:last-child {
+    margin-bottom: 0;
+}
+
+.setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* Settings grid for better layout */
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.settings-grid .setting-item {
+    margin-bottom: 0;
+}
+
+/* Compact toggle for grid layout */
+.setting-toggle.compact {
+    padding: 10px 14px;
+}
+
+.setting-toggle.compact .toggle-label {
+    font-size: 0.85rem;
+}
+
+/* Setting description */
+.setting-description {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 4px;
+    line-height: 1.4;
 }
